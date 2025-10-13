@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  mysql:
+    build: .
+    container_name: db_class_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "3057"
+      MYSQL_DATABASE: db_class
+      MYSQL_USER: student
+      MYSQL_PASSWORD: "3057"
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # 초기화 스크립트가 있다면 주석 해제
+      # - ./init-scripts:/docker-entrypoint-initdb.d
+      # 설정 파일이 있다면 주석 해제
+      # - ./my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - db_network
+
+volumes:
+  mysql_data:
+
+networks:
+  db_network:
+    driver: bridge

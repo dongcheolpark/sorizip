@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'war'
+    id 'org.gretty' version '4.0.3'
+    id 'com.diffplug.spotless' version '6.25.0'
+}
+
+group = 'com.example'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+    // MySQL Connector/J 올바른 groupId 는 com.mysql
+    implementation 'com.mysql:mysql-connector-j:8.3.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
+// Gretty 설정: 포트는 -PappPort=9090 처럼 오버라이드 가능
+gretty {
+    contextPath = '/'
+    // 기본 8081 (8080 충돌 피함) : ./gradlew appRun -PappPort=8082 로 변경 가능
+    httpPort = (project.findProperty('appPort') ?: '8081') as int
+    servletContainer = 'tomcat10'
+}
+
+// Spotless Java formatter (Prettier 유사 스타일: width=120, space indent=2)
+spotless {
+    java {
+        target 'src/main/java/**/*.java'
+        eclipse().configFile 'config/spotless/eclipse-java.xml'
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}

@@ -1,0 +1,28 @@
+h1 {
+    margin: 30px;
+}
+
+ul {
+    font-size: 25px;
+}
+
+li {
+    margin: 4px 8px;
+}
+
+div {
+    background-color: #87ceeb;
+    width: 250px;
+    height: 350px;
+    border: 2px solid black;
+    margin: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+img {
+    width: 230px;
+    height: 330px;
+    margin: 10px;
+}

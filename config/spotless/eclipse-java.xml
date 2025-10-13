@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profiles version="21">
+    <profile kind="CodeFormatterProfile" name="Custom-Prettier-Like" version="21">
+        <!-- Line width analogous to printWidth -->
+        <setting id="org.eclipse.jdt.core.formatter.lineSplit" value="120"/>
+        <!-- Indentation: spaces, size=2 -->
+        <setting id="org.eclipse.jdt.core.formatter.tabulation.char" value="space"/>
+        <setting id="org.eclipse.jdt.core.formatter.tabulation.size" value="2"/>
+        <setting id="org.eclipse.jdt.core.formatter.indentation.size" value="2"/>
+        <!-- Keep one statement per line -->
+        <setting id="org.eclipse.jdt.core.formatter.number_of_empty_lines_to_preserve" value="1"/>
+        <!-- Braces: next line (similar to bracketSameLine=false) -->
+        <setting id="org.eclipse.jdt.core.formatter.brace_position_for_type_declaration" value="next_line"/>
+        <setting id="org.eclipse.jdt.core.formatter.brace_position_for_method_declaration" value="next_line"/>
+        <setting id="org.eclipse.jdt.core.formatter.brace_position_for_constructor_declaration" value="next_line"/>
+        <setting id="org.eclipse.jdt.core.formatter.brace_position_for_anonymous_type_declaration" value="next_line"/>
+        <setting id="org.eclipse.jdt.core.formatter.brace_position_for_block" value="next_line"/>
+        <setting id="org.eclipse.jdt.core.formatter.brace_position_for_block_in_case" value="next_line"/>
+        <setting id="org.eclipse.jdt.core.formatter.brace_position_for_switch" value="next_line"/>
+        <setting id="org.eclipse.jdt.core.formatter.brace_position_for_array_initializer" value="next_line"/>
+        <!-- Spacing similar to bracketSpacing=true -->
+        <setting id="org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_method_declaration"
+                 value="do not insert"/>
+        <setting id="org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_method_declaration"
+                 value="do not insert"/>
+        <setting id="org.eclipse.jdt.core.formatter.insert_space_after_comma_in_method_declaration_parameters"
+                 value="insert"/>
+        <setting id="org.eclipse.jdt.core.formatter.insert_space_after_comma_in_method_invocation_arguments"
+                 value="insert"/>
+        <setting id="org.eclipse.jdt.core.formatter.insert_space_after_comma_in_allocation_expression" value="insert"/>
+        <setting id="org.eclipse.jdt.core.formatter.insert_space_after_comma_in_array_initializer" value="insert"/>
+        <setting id="org.eclipse.jdt.core.formatter.insert_space_after_comma_in_constructor_declaration_parameters"
+                 value="insert"/>
+        <setting id="org.eclipse.jdt.core.formatter.insert_space_before_and_in_empty_parens_in_method_declaration"
+                 value="do not insert"/>
+        <setting id="org.eclipse.jdt.core.formatter.insert_space_before_and_in_empty_parens_in_method_invocation"
+                 value="do not insert"/>
+        <!-- Semicolons (semi=true) default kept -->
+        <!-- Always wrap long lines -->
+        <setting id="org.eclipse.jdt.core.formatter.alignment_for_parameters_in_method_declaration" value="16"/>
+        <setting id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_method_invocation" value="16"/>
+        <setting id="org.eclipse.jdt.core.formatter.alignment_for_binary_expression" value="16"/>
+        <setting id="org.eclipse.jdt.core.formatter.alignment_for_enum_constants" value="48"/>
+        <!-- Keep simple methods on one line? mimic Prettier (expanded) -->
+        <setting id="org.eclipse.jdt.core.formatter.keep_simple_methods_on_one_line" value="false"/>
+        <setting id="org.eclipse.jdt.core.formatter.keep_imple_if_on_one_line" value="false"/>
+        <!-- End of line: Spotless will normalize via endWithNewline() and git config core.autocrlf -->
+    </profile>
+</profiles>
