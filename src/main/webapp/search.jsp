@@ -11,7 +11,7 @@
   <meta charset="UTF-8" />
   <title>검색 결과 – 소리집 sorizip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/search.css" />
 </head>
 <body>
 
@@ -28,11 +28,12 @@
 <section class="section">
   <h2>검색 결과</h2>
 
-  <!-- 검색어 다시 입력할 수 있는 작은 검색창 -->
+  <!-- 상단 검색창 -->
   <form class="search-bar" method="get" action="search.jsp">
     <input
       type="text"
       name="q"
+      id="searchInput"
       class="search-input"
       placeholder="악기 이름, 브랜드, 도시로 검색해보세요"
       value="<%= keyword %>"
@@ -40,79 +41,143 @@
     <button type="submit" class="btn primary">검색</button>
   </form>
 
-  <%
-    // 나중에: 여기서 DAO로 DB 검색하면 됨.
-    // 지금은 화면 구성을 위해 더미 결과 3개만 조건부로 보여줄게.
-
-    boolean hasKeyword = !keyword.isEmpty();
-    // 대충 '야마하' 검색했다고 치고, 있을 때는 3개, 없으면 0개 예시
-    int dummyCount = hasKeyword ? 3 : 0;
-  %>
+  <!-- 상세 검색 필터 (카테고리만) -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <span class="filter-label">카테고리</span>
+      <button type="button" class="chip chip-filter active" data-category="">전체</button>
+      <button type="button" class="chip chip-filter" data-category="어쿠스틱 기타">어쿠스틱 기타</button>
+      <button type="button" class="chip chip-filter" data-category="일렉 기타">일렉 기타</button>
+      <button type="button" class="chip chip-filter" data-category="베이스">베이스</button>
+      <button type="button" class="chip chip-filter" data-category="피아노">피아노</button>
+      <button type="button" class="chip chip-filter" data-category="신디사이저">신디사이저</button>
+      <button type="button" class="chip chip-filter" data-category="관악기">관악기</button>
+      <button type="button" class="chip chip-filter" data-category="드럼">드럼</button>
+    </div>
+  </div>
 
   <p class="muted" style="margin-top:6px;">
-    <% if (hasKeyword) { %>
-      "<strong><%= keyword %></strong>" 검색 결과 <strong><%= dummyCount %></strong>건
+    <% if (!keyword.isEmpty()) { %>
+      "<strong><%= keyword %></strong>"에 대한 검색 결과
     <% } else { %>
-      검색어를 입력해 주세요.
+      검색어와 카테고리 필터를 조합해 원하는 악기를 찾아보세요.
     <% } %>
   </p>
 
   <hr style="margin:16px 0; border:none; border-top:1px solid #eee;" />
 
-  <% if (!hasKeyword) { %>
-    <p class="muted">위 입력창에 원하는 악기를 입력해 검색해보세요.</p>
-  <% } else if (dummyCount == 0) { %>
-    <p>일치하는 매물이 없습니다. 다른 키워드로 다시 검색해 보세요.</p>
-  <% } else { %>
-    <div class="grid-3">
-
-      <!-- 검색 결과 카드 예시 1 -->
-      <a class="card product" href="#">
-        <div class="thumb"></div>
-        <div class="meta">
-          <h3>야마하 업라이트 U1</h3>
-          <p class="muted">Yamaha · 서울</p>
-          <div class="row">
-            <span class="price">1,800,000원</span>
-            <span class="tag">good</span>
-          </div>
+  <!-- 결과 카드 (지금은 예시 데이터) -->
+  <div class="grid-3" id="resultGrid">
+    <a class="card product"
+       href="#"
+       data-category="피아노"
+       data-brand="Yamaha"
+       data-city="서울"
+       data-title="야마하 업라이트 U1">
+      <div class="thumb"></div>
+      <div class="meta">
+        <h3>야마하 업라이트 U1</h3>
+        <p class="muted">Yamaha · 서울</p>
+        <div class="row">
+          <span class="price">1,800,000원</span>
+          <span class="tag">good</span>
         </div>
-      </a>
+      </div>
+    </a>
 
-      <!-- 검색 결과 카드 예시 2 -->
-      <a class="card product" href="#">
-        <div class="thumb"></div>
-        <div class="meta">
-          <h3>야마하 어쿠스틱 기타 FG800</h3>
-          <p class="muted">Yamaha · 대구</p>
-          <div class="row">
-            <span class="price">220,000원</span>
-            <span class="tag">like-new</span>
-          </div>
+    <a class="card product"
+       href="#"
+       data-category="일렉 기타"
+       data-brand="Fender"
+       data-city="부산"
+       data-title="펜더 스트라토캐스터">
+      <div class="thumb"></div>
+      <div class="meta">
+        <h3>펜더 스트라토캐스터</h3>
+        <p class="muted">Fender · 부산</p>
+        <div class="row">
+          <span class="price">950,000원</span>
+          <span class="tag">like-new</span>
         </div>
-      </a>
+      </div>
+    </a>
 
-      <!-- 검색 결과 카드 예시 3 -->
-      <a class="card product" href="#">
-        <div class="thumb"></div>
-        <div class="meta">
-          <h3>야마하 디지털피아노 P-125</h3>
-          <p class="muted">Yamaha · 부산</p>
-          <div class="row">
-            <span class="price">550,000원</span>
-            <span class="tag">good</span>
-          </div>
+    <a class="card product"
+       href="#"
+       data-category="피아노"
+       data-brand="Roland"
+       data-city="대구"
+       data-title="롤랜드 디지털피아노 FP-30X">
+      <div class="thumb"></div>
+      <div class="meta">
+        <h3>롤랜드 디지털피아노 FP-30X</h3>
+        <p class="muted">Roland · 대구</p>
+        <div class="row">
+          <span class="price">680,000원</span>
+          <span class="tag">good</span>
         </div>
-      </a>
+      </div>
+    </a>
+  </div>
 
-    </div>
-  <% } %>
+  <p id="emptyMessage" style="display:none; margin-top:10px;">
+    조건에 맞는 매물이 없습니다. 검색어와 카테고리를 바꿔보세요.
+  </p>
 </section>
 
 <footer class="footer">
   <div>© <%= java.time.Year.now() %> sorizip</div>
   <div>문의: support@sorizip.example</div>
 </footer>
+
+<script>
+  (function () {
+    const keywordInput = document.getElementById("searchInput");
+    const categoryChips = document.querySelectorAll(".chip-filter");
+    const cards = document.querySelectorAll(".card.product");
+    const emptyMessage = document.getElementById("emptyMessage");
+
+    let currentCategory = "";
+
+    function applyFilter() {
+      const q = (keywordInput.value || "").trim().toLowerCase();
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const title = (card.dataset.title || "").toLowerCase();
+        const brand = (card.dataset.brand || "").toLowerCase();
+        const city = (card.dataset.city || "").toLowerCase();
+        const category = card.dataset.category || "";
+
+        const text = title + " " + brand + " " + city;
+
+        const matchKeyword = !q || text.includes(q);
+        const matchCategory = !currentCategory || category === currentCategory;
+
+        const show = matchKeyword && matchCategory;
+        card.style.display = show ? "" : "none";
+        if (show) visibleCount++;
+      });
+
+      emptyMessage.style.display = visibleCount === 0 ? "block" : "none";
+    }
+
+    // 카테고리 칩 클릭
+    categoryChips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        categoryChips.forEach((c) => c.classList.remove("active"));
+        chip.classList.add("active");
+        currentCategory = chip.dataset.category || "";
+        applyFilter();
+      });
+    });
+
+    // 키워드 변경
+    keywordInput.addEventListener("input", applyFilter);
+
+    document.addEventListener("DOMContentLoaded", applyFilter);
+  })();
+</script>
 
 </body>
 </html>

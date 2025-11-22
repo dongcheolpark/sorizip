@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <title>소리집 sorizip – 소리를 담은 집, 중고 악기 장터</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/index.css" />
 </head>
 <body>
 
