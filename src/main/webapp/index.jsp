@@ -23,8 +23,20 @@
   <div class="hero-text">
     <h1>소리를 담은 집, <span>sorizip</span></h1>
     <p>기타, 피아노, 드럼부터 관악기까지. 믿고 거래하는 중고 악기 장터.</p>
+
+    <!-- 검색바 -->
+    <form id="searchForm" class="search-bar" onsubmit="return false;">
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="악기 이름, 브랜드, 도시로 검색해보세요"
+      />
+      <button type="button" class="btn primary" id="searchClearBtn">초기화</button>
+    </form>
+
     <div class="cta-row">
-      <a class="btn primary" href="#market">추천 매물 보기</a>
+      <a class="btn ghost" href="#market">추천 매물 보기</a>
       <a class="btn ghost" href="#features">서비스 소개</a>
     </div>
   </div>
@@ -64,8 +76,11 @@
 <section id="market" class="section">
   <h2>추천 매물</h2>
   <div class="grid-3">
-    <a class="card product" href="#">
-      <div class="thumb" style="background-image:url('assets/img/u1.jpg')"></div>
+    <a class="card product" href="#"
+       data-title="야마하 업라이트 U1"
+       data-brand="Yamaha"
+       data-city="서울">
+      <div class="thumb"></div>
       <div class="meta">
         <h3>야마하 업라이트 U1</h3>
         <p class="muted">Yamaha</p>
@@ -77,8 +92,11 @@
       </div>
     </a>
 
-    <a class="card product" href="#">
-      <div class="thumb" style="background-image:url('assets/img/strat.jpg')"></div>
+    <a class="card product" href="#"
+       data-title="펜더 스트라토캐스터"
+       data-brand="Fender"
+       data-city="부산">
+      <div class="thumb"></div>
       <div class="meta">
         <h3>펜더 스트라토캐스터</h3>
         <p class="muted">Fender</p>
@@ -90,8 +108,11 @@
       </div>
     </a>
 
-    <a class="card product" href="#">
-      <div class="thumb" style="background-image:url('assets/img/fp30x.jpg')"></div>
+    <a class="card product" href="#"
+       data-title="롤랜드 디지털피아노 FP-30X"
+       data-brand="Roland"
+       data-city="대구">
+      <div class="thumb"></div>
       <div class="meta">
         <h3>롤랜드 디지털피아노 FP-30X</h3>
         <p class="muted">Roland</p>
@@ -115,6 +136,38 @@
   <div>© <%= java.time.Year.now() %> sorizip</div>
   <div>문의: support@sorizip.example</div>
 </footer>
+
+<!-- 검색 스크립트 -->
+<script>
+  (function () {
+    const input = document.getElementById("searchInput");
+    const clearBtn = document.getElementById("searchClearBtn");
+    const cards = document.querySelectorAll(".card.product");
+
+    function applyFilter() {
+      const q = (input.value || "").trim().toLowerCase();
+
+      cards.forEach((card) => {
+        const title = (card.dataset.title || "").toLowerCase();
+        const brand = (card.dataset.brand || "").toLowerCase();
+        const city = (card.dataset.city || "").toLowerCase();
+
+        const text = title + " " + brand + " " + city;
+        const match = text.includes(q);
+
+        card.style.display = match ? "" : "none";
+      });
+    }
+
+    input.addEventListener("input", applyFilter);
+
+    clearBtn.addEventListener("click", () => {
+      input.value = "";
+      applyFilter();
+      input.focus();
+    });
+  })();
+</script>
 
 </body>
 </html>
