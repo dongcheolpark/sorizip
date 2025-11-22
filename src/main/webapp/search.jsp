@@ -16,7 +16,7 @@
 <body>
 
 <header class="nav">
-  <div class="brand">소리집 <span class="sub">sorizip</span></div>
+  <a href="index.jsp" class="brand">소리집 <span class="sub">sorizip</span></a>
   <nav>
     <a href="index.jsp#features">서비스 소개</a>
     <a href="index.jsp#categories">카테고리</a>

@@ -23,6 +23,8 @@ body {
 
 .brand {
   font-weight: 700;
+  text-decoration: none;
+  color: #000;
 }
 
 .brand .sub {
