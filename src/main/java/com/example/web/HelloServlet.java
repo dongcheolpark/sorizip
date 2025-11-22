@@ -7,9 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class HelloServlet extends HttpServlet {
@@ -19,18 +16,22 @@ public class HelloServlet extends HttpServlet {
     try (PrintWriter out = resp.getWriter()) {
       out.println("Hello from HelloServlet");
       out.println();
-      // DB 연결 테스트
-      try (Connection conn = Db.getConnection();
-           PreparedStatement ps = conn.prepareStatement("SELECT 1 AS ok");
-           ResultSet rs = ps.executeQuery()) {
-        if (rs.next()) {
-          out.println("DB Connection OK (SELECT 1 = " + rs.getInt("ok") + ")");
-        } else {
-          out.println("DB Connection query returned no rows");
-        }
-      } catch (SQLException e) {
-        out.println("DB ERROR: " + e.getMessage());
-      }
+
+      Db.query("SELECT * FROM user", rs -> {
+        rs.next();
+          while (true) {
+            int id = rs.getInt("id");
+            String password = rs.getString("password");
+            String email = rs.getString("email");
+            out.printf("id=%d, password=%s, email=%s%n", id, password, email);
+            if (!rs.next()) {
+              break;
+            }
+          }
+        return null;
+      });
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
     }
   }
 }

@@ -27,3 +27,5 @@ replay_pid*
 .gradle/
 .idea/
 build/
+src/main/resources/db.properties
+.env
