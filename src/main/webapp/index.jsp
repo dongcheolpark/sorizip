@@ -25,14 +25,15 @@
     <p>기타, 피아노, 드럼부터 관악기까지. 믿고 거래하는 중고 악기 장터.</p>
 
     <!-- 검색바 -->
-    <form id="searchForm" class="search-bar" onsubmit="return false;">
+    <form id="searchForm" class="search-bar" method="get" action="search.jsp">
       <input
         type="text"
+        name="q"
         id="searchInput"
         class="search-input"
         placeholder="악기 이름, 브랜드, 도시로 검색해보세요"
       />
-      <button type="button" class="btn primary" id="searchClearBtn">초기화</button>
+      <button type="submit" class="btn primary">검색</button>
     </form>
 
     <div class="cta-row">
@@ -136,38 +137,5 @@
   <div>© <%= java.time.Year.now() %> sorizip</div>
   <div>문의: support@sorizip.example</div>
 </footer>
-
-<!-- 검색 스크립트 -->
-<script>
-  (function () {
-    const input = document.getElementById("searchInput");
-    const clearBtn = document.getElementById("searchClearBtn");
-    const cards = document.querySelectorAll(".card.product");
-
-    function applyFilter() {
-      const q = (input.value || "").trim().toLowerCase();
-
-      cards.forEach((card) => {
-        const title = (card.dataset.title || "").toLowerCase();
-        const brand = (card.dataset.brand || "").toLowerCase();
-        const city = (card.dataset.city || "").toLowerCase();
-
-        const text = title + " " + brand + " " + city;
-        const match = text.includes(q);
-
-        card.style.display = match ? "" : "none";
-      });
-    }
-
-    input.addEventListener("input", applyFilter);
-
-    clearBtn.addEventListener("click", () => {
-      input.value = "";
-      applyFilter();
-      input.focus();
-    });
-  })();
-</script>
-
 </body>
 </html>
