@@ -1,16 +1,7 @@
 plugins {
     id 'java'
     id 'war'
-    id 'org.gretty' version '4.0.3'
     id 'com.diffplug.spotless' version '6.25.0'
-}
-
-group = 'com.example'
-version = '1.0.0-SNAPSHOT'
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -19,31 +10,27 @@ repositories {
 
 dependencies {
     compileOnly 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+
+    // 이 두 줄이 핵심입니다 (톰캣을 라이브러리로 가져옴)
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.19'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper:10.1.19'
+
+    // DB 및 기타 의존성
     implementation 'com.zaxxer:HikariCP:5.1.0'
-    // MySQL Connector/J 올바른 groupId 는 com.mysql
     implementation 'com.mysql:mysql-connector-j:8.3.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 }
 
-tasks.withType(Test) {
-    useJUnitPlatform()
-}
+task appRun(type: JavaExec) {
+    group = 'application' // ./gradlew tasks 했을 때 보여질 그룹
+    description = '임베디드 톰캣 서버를 실행합니다.'
 
-// Gretty 설정: 포트는 -PappPort=9090 처럼 오버라이드 가능
-gretty {
-    contextPath = '/'
-    // 기본 8081 (8080 충돌 피함) : ./gradlew appRun -PappPort=8082 로 변경 가능
-    httpPort = (project.findProperty('appPort') ?: '8081') as int
-    servletContainer = 'tomcat10'
-}
+    // 컴파일된 클래스와 라이브러리들을 모두 로드합니다.
+    classpath = sourceSets.main.runtimeClasspath
 
-// Spotless Java formatter (Prettier 유사 스타일: width=120, space indent=2)
-spotless {
-    java {
-        target 'src/main/java/**/*.java'
-        eclipse().configFile 'config/spotless/eclipse-java.xml'
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
-    }
+    // 실행할 메인 클래스 (아까 성공하신 그 파일 경로)
+    mainClass = 'com.example.web.TomcatServer'
+
+    // (선택) 한글 깨짐 방지 등 JVM 옵션이 필요하면 추가
+    jvmArgs = ['-Dfile.encoding=UTF-8']
 }
