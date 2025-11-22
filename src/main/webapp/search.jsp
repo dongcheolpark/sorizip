@@ -1,9 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
   request.setCharacterEncoding("UTF-8");
+
   String q = request.getParameter("q");
   if (q == null) q = "";
   String keyword = q.trim();
+
+  String categoryParam = request.getParameter("category");
+  if (categoryParam == null) categoryParam = "";
+  String selectedCategory = categoryParam.trim();
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -43,18 +48,58 @@
 
   <!-- 상세 검색 필터 (카테고리만) -->
   <div class="filter-bar">
-    <div class="filter-group">
-      <span class="filter-label">카테고리</span>
-      <button type="button" class="chip chip-filter active" data-category="">전체</button>
-      <button type="button" class="chip chip-filter" data-category="어쿠스틱 기타">어쿠스틱 기타</button>
-      <button type="button" class="chip chip-filter" data-category="일렉 기타">일렉 기타</button>
-      <button type="button" class="chip chip-filter" data-category="베이스">베이스</button>
-      <button type="button" class="chip chip-filter" data-category="피아노">피아노</button>
-      <button type="button" class="chip chip-filter" data-category="신디사이저">신디사이저</button>
-      <button type="button" class="chip chip-filter" data-category="관악기">관악기</button>
-      <button type="button" class="chip chip-filter" data-category="드럼">드럼</button>
-    </div>
+  <div class="filter-group">
+    <span class="filter-label">카테고리</span>
+
+    <button type="button"
+            class="chip chip-filter <%= selectedCategory.isEmpty() ? "active" : "" %>"
+            data-category="">
+      전체
+    </button>
+
+    <button type="button"
+            class="chip chip-filter <%= "어쿠스틱 기타".equals(selectedCategory) ? "active" : "" %>"
+            data-category="어쿠스틱 기타">
+      어쿠스틱 기타
+    </button>
+
+    <button type="button"
+            class="chip chip-filter <%= "일렉 기타".equals(selectedCategory) ? "active" : "" %>"
+            data-category="일렉 기타">
+      일렉 기타
+    </button>
+
+    <button type="button"
+            class="chip chip-filter <%= "베이스".equals(selectedCategory) ? "active" : "" %>"
+            data-category="베이스">
+      베이스
+    </button>
+
+    <button type="button"
+            class="chip chip-filter <%= "피아노".equals(selectedCategory) ? "active" : "" %>"
+            data-category="피아노">
+      피아노
+    </button>
+
+    <button type="button"
+            class="chip chip-filter <%= "신디사이저".equals(selectedCategory) ? "active" : "" %>"
+            data-category="신디사이저">
+      신디사이저
+    </button>
+
+    <button type="button"
+            class="chip chip-filter <%= "관악기".equals(selectedCategory) ? "active" : "" %>"
+            data-category="관악기">
+      관악기
+    </button>
+
+    <button type="button"
+            class="chip chip-filter <%= "드럼".equals(selectedCategory) ? "active" : "" %>"
+            data-category="드럼">
+      드럼
+    </button>
   </div>
+</div>
 
   <p class="muted" style="margin-top:6px;">
     <% if (!keyword.isEmpty()) { %>
@@ -137,7 +182,7 @@
     const cards = document.querySelectorAll(".card.product");
     const emptyMessage = document.getElementById("emptyMessage");
 
-    let currentCategory = "";
+    let currentCategory = "<%= selectedCategory %>";
 
     function applyFilter() {
       const q = (keywordInput.value || "").trim().toLowerCase();

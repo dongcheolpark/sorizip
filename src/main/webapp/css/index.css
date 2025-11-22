@@ -168,6 +168,8 @@ body {
   background: #fff;
   border: 1px solid #eee;
   border-radius: 999px;
+  text-decoration: none;
+  color: #000;
 }
 
 /* CTA 섹션 */

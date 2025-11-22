@@ -64,13 +64,13 @@
 <section id="categories" class="section">
   <h2>주요 카테고리</h2>
   <div class="chips">
-    <span class="chip">어쿠스틱 기타</span>
-    <span class="chip">일렉 기타</span>
-    <span class="chip">베이스</span>
-    <span class="chip">피아노</span>
-    <span class="chip">신디사이저</span>
-    <span class="chip">관악기</span>
-    <span class="chip">드럼</span>
+    <a class="chip" href="search.jsp?category=어쿠스틱 기타">어쿠스틱 기타</a>
+    <a class="chip" href="search.jsp?category=일렉 기타">일렉 기타</a>
+    <a class="chip" href="search.jsp?category=베이스">베이스</a>
+    <a class="chip" href="search.jsp?category=피아노">피아노</a>
+    <a class="chip" href="search.jsp?category=신디사이저">신디사이저</a>
+    <a class="chip" href="search.jsp?category=관악기">관악기</a>
+    <a class="chip" href="search.jsp?category=드럼">드럼</a>
   </div>
 </section>
 
