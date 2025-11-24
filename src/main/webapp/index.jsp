@@ -1,4 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+  // 로그인 상태 확인
+  Integer userId = (Integer) session.getAttribute("userId");
+  String userUId = (String) session.getAttribute("userUId");
+  boolean isLoggedIn = (userId != null && userUId != null);
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -13,12 +19,27 @@
   <a href="index.jsp" class="brand">소리집 <span class="sub">sorizip</span></a>
   <nav>
     <a href="#features">서비스 소개</a>
-    <a href="#categories">카테고리</a>
     <a href="#market">추천 매물</a>
     <a href="#cta">시작하기</a>
-    <a href="login.jsp" style="color: #FF6B35; font-weight: 600;">+ 매물 등록</a>
+    <% if (isLoggedIn) { %>
+      <span style="color: #666; margin-right: 10px;"><%= userUId %>님</span>
+      <a href="new.jsp" style="color: #FF6B35; font-weight: 600;">+ 매물 등록</a>
+      <a href="#" onclick="return confirmLogout();" style="color: #999;">로그아웃</a>
+    <% } else { %>
+      <a href="login.jsp" style="color: #FF6B35; font-weight: 600;">로그인</a>
+    <% } %>
   </nav>
 </header>
+
+<script>
+  function confirmLogout() {
+    if (confirm('로그아웃 하시겠습니까?')) {
+      window.location.href = 'logout';
+      return true;
+    }
+    return false;
+  }
+</script>
 
 <section class="hero">
   <div class="hero-text">

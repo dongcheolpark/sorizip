@@ -5,11 +5,8 @@
   <meta charset="UTF-8" />
   <title>로그인 – 소리집 sorizip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- 공통 네비/버튼 스타일 재사용 -->
   <link rel="stylesheet" href="css/index.css" />
   <style>
-    /* 로그인 화면 전용 레이아웃 */
-
     .auth-wrapper {
       min-height: calc(100vh - 60px);
       display: flex;
@@ -100,16 +97,29 @@
 </header>
 
 <section class="auth-wrapper">
-  <form class="auth-card" method="get" action="new.jsp">
+  <form class="auth-card" method="post" action="login">
     <h1 class="auth-title">로그인</h1>
     <p class="auth-sub">매물을 등록하려면 먼저 로그인해주세요.</p>
 
+    <% 
+       String signup = request.getParameter("signup");
+       if ("success".equals(signup)) { %>
+    <div style="color:#2e7d32; margin-bottom:12px; font-weight:600; padding:8px; background:#e8f5e9; border-radius:6px;">
+      회원가입이 완료되었습니다! 로그인해주세요.
+    </div>
+    <% } 
+    
+       String error = (String) request.getAttribute("error");
+       if (error != null) { %>
+    <div style="color:#b00020; margin-bottom:12px; font-weight:600"><%= error %></div>
+    <% } %>
+
     <div class="auth-field">
-      <label class="auth-label" for="userId">아이디</label>
+      <label class="auth-label" for="userUId">아이디</label>
       <input
         type="text"
-        id="userId"
-        name="userId"
+        id="userUId"
+        name="userUId"
         class="auth-input"
         placeholder="아이디를 입력하세요"
         required
@@ -117,11 +127,11 @@
     </div>
 
     <div class="auth-field">
-      <label class="auth-label" for="userPw">비밀번호</label>
+      <label class="auth-label" for="userPassword">비밀번호</label>
       <input
         type="password"
-        id="userPw"
-        name="userPw"
+        id="userPassword"
+        name="userPassword"
         class="auth-input"
         placeholder="비밀번호를 입력하세요"
         required
@@ -138,10 +148,6 @@
     <!-- 메인으로 -->
     <a href="index.jsp" class="btn ghost full">메인으로 돌아가기</a>
     </div>
-
-    <p class="auth-helper">
-      실제 인증 로직은 추후 DB 계정과 연동할 수 있습니다.
-    </p>
   </form>
 </section>
 

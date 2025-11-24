@@ -6,6 +6,57 @@
 <%
   request.setCharacterEncoding("UTF-8");
 
+  // 세션에 저장된 사용자 ID를 사용 (로그인 필요)
+  Integer currentUserId = (Integer) session.getAttribute("userId");
+  if (currentUserId == null) {
+    response.sendRedirect("login.jsp");
+    return;
+  }
+
+  // 폼 제출 처리
+  String action = request.getParameter("action");
+  if ("submit".equals(action)) {
+    String title = request.getParameter("title");
+    String description = request.getParameter("description");
+    String priceStr = request.getParameter("price");
+    String[] categoryIds = request.getParameterValues("categories");
+
+    if (title != null && !title.trim().isEmpty() && priceStr != null && !priceStr.trim().isEmpty()) {
+      try {
+        int price = Integer.parseInt(priceStr);
+
+        // sell_post 테이블에 insert
+        String insertPostSql = "INSERT INTO sell_post (title, description, price, author_id) VALUES (?, ?, ?, ?)";
+        Db.execute(insertPostSql, title, description, price, currentUserId);
+
+        // 방금 insert한 id 가져오기
+        String getIdSql = "SELECT LAST_INSERT_ID() as id";
+        int postId = Db.query(getIdSql, (ResultSet rs) -> {
+          if (rs.next()) {
+            return rs.getInt("id");
+          }
+          return -1;
+        });
+
+        // 카테고리 연결
+        if (categoryIds != null && categoryIds.length > 0 && postId > 0) {
+          String insertCategorySql = "INSERT INTO sell_post_category (sell_post_id, category_id) VALUES (?, ?)";
+          for (String categoryId : categoryIds) {
+            Db.execute(insertCategorySql, postId, Integer.parseInt(categoryId));
+          }
+        }
+
+        // 작성 완료 후 상세 페이지로 리다이렉트
+        if (postId > 0) {
+          response.sendRedirect("show.jsp?id=" + postId);
+          return;
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
   // DB에서 카테고리 목록 가져오기
   class Category {
     final int id;
