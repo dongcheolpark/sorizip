@@ -16,7 +16,7 @@
     <a href="#categories">카테고리</a>
     <a href="#market">추천 매물</a>
     <a href="#cta">시작하기</a>
-    <a href="new.jsp" style="color: #FF6B35; font-weight: 600;">+ 매물 등록</a>
+    <a href="login.jsp" style="color: #FF6B35; font-weight: 600;">+ 매물 등록</a>
   </nav>
 </header>
 
