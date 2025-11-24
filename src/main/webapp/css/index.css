@@ -61,7 +61,7 @@ body {
 
 /* 히어로 섹션 (이미지 없이 배경색만 사용) */
 .hero {
-  height: 260px;
+  padding: 40px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -161,15 +161,55 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  justify-content: center;
 }
 
 .chip {
-  padding: 8px 10px;
+  padding: 6px 12px;
   background: #fff;
-  border: 1px solid #eee;
+  border: 1px solid #ddd;
   border-radius: 999px;
   text-decoration: none;
-  color: #000;
+  color: #555;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.chip:hover {
+  background: #fff7ee;
+  border-color: #ff8a00;
+  color: #333;
+}
+
+/* 카테고리 섹션 (칩들 + 전체보기 버튼) */
+.category-section {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.view-all-btn {
+  padding: 8px 18px;
+  background: #fff;
+  color: #ff8a00;
+  text-decoration: none;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  border-color: #ff8a00;
+  font-weight: 500;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.view-all-btn:hover {
+  background: #f8f8f8;
+  border-color: #ff8a00;
+  color: #ff8a00;
+  transform: translateX(2px);
 }
 
 /* CTA 섹션 */
@@ -182,10 +222,13 @@ body {
 
 /* 푸터 */
 .footer {
-  padding: 18px;
-  color: #777;
+  padding: 32px 18px;
+  color: #999;
   text-align: center;
   border-top: 1px solid #eee;
+  background: #fafafa;
+  font-size: 0.85rem;
+  line-height: 1.6;
 }
 
 /* 반응형 */

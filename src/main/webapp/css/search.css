@@ -8,36 +8,6 @@ body {
   font-family: system-ui, "Apple SD Gothic Neo", "Segoe UI", Roboto, sans-serif;
 }
 
-/* 상단 네비게이션 */
-.nav {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 18px;
-  border-bottom: 1px solid #eee;
-  background: #fff;
-  position: sticky;
-  top: 0;
-}
-
-.brand {
-  font-weight: 700;
-  text-decoration: none;
-  color: #000;
-}
-
-.brand .sub {
-  font-weight: 400;
-  color: #9a6a00;
-}
-
-.nav nav a {
-  margin: 0 8px;
-  color: #444;
-  text-decoration: none;
-}
-
 /* 버튼 */
 .btn {
   padding: 8px 14px;
@@ -52,11 +22,6 @@ body {
   background: #ff8a00;
   color: #fff;
   border-color: #ff8a00;
-}
-
-.btn.ghost {
-  border-color: #ccc;
-  color: #333;
 }
 
 /* 공통 섹션 */
@@ -119,13 +84,6 @@ body {
 
 .price {
   font-weight: 700;
-}
-
-.tag {
-  padding: 2px 8px;
-  border: 1px solid #ddd;
-  border-radius: 999px;
-  font-size: 0.8rem;
 }
 
 /* 푸터 */
@@ -193,12 +151,6 @@ body {
   font-size: 0.9rem;
   color: #555;
   font-weight: 600;
-}
-/* 카테고리 칩 공통 스타일 */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
 }
 
 /* 버튼이지만 pill 형태로 보이게 */

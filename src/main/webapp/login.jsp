@@ -85,16 +85,7 @@
 </head>
 <body>
 
-<header class="nav">
-  <a href="index.jsp" class="brand">소리집 <span class="sub">sorizip</span></a>
-  <nav>
-    <a href="index.jsp#features">서비스 소개</a>
-    <a href="index.jsp#categories">카테고리</a>
-    <a href="index.jsp#market">추천 매물</a>
-    <a href="index.jsp#cta">시작하기</a>
-    <a href="login.jsp" style="color: #FF6B35; font-weight: 600;">+ 매물 등록</a>
-  </nav>
-</header>
+<%@ include file="WEB-INF/includes/header.jsp" %>
 
 <section class="auth-wrapper">
   <form class="auth-card" method="post" action="login">

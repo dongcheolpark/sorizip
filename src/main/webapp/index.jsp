@@ -1,10 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%
-  // 로그인 상태 확인
-  Integer userId = (Integer) session.getAttribute("userId");
-  String userUId = (String) session.getAttribute("userUId");
-  boolean isLoggedIn = (userId != null && userUId != null);
-%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -15,31 +9,7 @@
 </head>
 <body>
 
-<header class="nav">
-  <a href="index.jsp" class="brand">소리집 <span class="sub">sorizip</span></a>
-  <nav>
-    <a href="#features">서비스 소개</a>
-    <a href="#market">추천 매물</a>
-    <a href="#cta">시작하기</a>
-    <% if (isLoggedIn) { %>
-      <span style="color: #666; margin-right: 10px;"><%= userUId %>님</span>
-      <a href="new.jsp" style="color: #FF6B35; font-weight: 600;">+ 매물 등록</a>
-      <a href="#" onclick="return confirmLogout();" style="color: #999;">로그아웃</a>
-    <% } else { %>
-      <a href="login.jsp" style="color: #FF6B35; font-weight: 600;">로그인</a>
-    <% } %>
-  </nav>
-</header>
-
-<script>
-  function confirmLogout() {
-    if (confirm('로그아웃 하시겠습니까?')) {
-      window.location.href = 'logout';
-      return true;
-    }
-    return false;
-  }
-</script>
+<%@ include file="WEB-INF/includes/header.jsp" %>
 
 <section class="hero">
   <div class="hero-text">
@@ -58,29 +28,44 @@
       <button type="submit" class="btn primary">검색</button>
     </form>
 
-    <div class="cta-row">
-      <a class="btn primary" href="search.jsp">매물 보러가기</a>
-      <a class="btn ghost" href="#market">추천 매물 보기</a>
-      <a class="btn ghost" href="#features">서비스 소개</a>
+    <!-- 주요 카테고리 + 전체보기 -->
+    <div class="category-section">
+      <div class="chips">
+        <a class="chip" href="search.jsp?category=어쿠스틱 기타">어쿠스틱 기타</a>
+        <a class="chip" href="search.jsp?category=일렉 기타">일렉 기타</a>
+        <a class="chip" href="search.jsp?category=베이스">베이스</a>
+        <a class="chip" href="search.jsp?category=피아노">피아노</a>
+        <a class="chip" href="search.jsp?category=신디사이저">신디사이저</a>
+        <a class="chip" href="search.jsp?category=관악기">관악기</a>
+        <a class="chip" href="search.jsp?category=드럼">드럼</a>
+      </div>
+      <a class="view-all-btn" href="search.jsp">
+        매물 전체보기 →
+      </a>
     </div>
   </div>
 </section>
 
-<section id="categories" class="section">
-  <h2>주요 카테고리</h2>
-  <div class="chips">
-    <a class="chip" href="search.jsp?category=어쿠스틱 기타">어쿠스틱 기타</a>
-    <a class="chip" href="search.jsp?category=일렉 기타">일렉 기타</a>
-    <a class="chip" href="search.jsp?category=베이스">베이스</a>
-    <a class="chip" href="search.jsp?category=피아노">피아노</a>
-    <a class="chip" href="search.jsp?category=신디사이저">신디사이저</a>
-    <a class="chip" href="search.jsp?category=관악기">관악기</a>
-    <a class="chip" href="search.jsp?category=드럼">드럼</a>
+<section id="features" class="section">
+  <h2>왜 소리집인가</h2>
+  <div class="grid-3">
+    <a class="card" href="#">
+      <h3>악기 특화 검색</h3>
+      <p>브랜드, 모델, 상태, 도시, 가격으로 정밀 필터를 제공합니다.</p>
+    </a>
+    <a class="card" href="#">
+      <h3>안심 거래 가이드</h3>
+      <p>대면 체크리스트와 직거래 안전 수칙으로 분쟁을 줄입니다.</p>
+    </a>
+    <a class="card" href="#">
+      <h3>투명한 매물 정보</h3>
+      <p>실사진, 상태표기, 점검 내역을 한눈에 확인할 수 있습니다.</p>
+    </a>
   </div>
 </section>
 
 <section id="market" class="section">
-  <h2>추천 매물</h2>
+<h2>최신 매물</h2>
   <div class="grid-3">
     <a class="card product" href="#"
        data-title="야마하 업라이트 U1"
@@ -128,24 +113,6 @@
           <span class="muted">대구</span>
         </div>
       </div>
-    </a>
-  </div>
-</section>
-
-<section id="features" class="section">
-  <h2>왜 소리집인가</h2>
-  <div class="grid-3">
-    <a class="card" href="#">
-      <h3>악기 특화 검색</h3>
-      <p>브랜드, 모델, 상태, 도시, 가격으로 정밀 필터를 제공합니다.</p>
-    </a>
-    <a class="card" href="#">
-      <h3>안심 거래 가이드</h3>
-      <p>대면 체크리스트와 직거래 안전 수칙으로 분쟁을 줄입니다.</p>
-    </a>
-    <a class="card" href="#">
-      <h3>투명한 매물 정보</h3>
-      <p>실사진, 상태표기, 점검 내역을 한눈에 확인할 수 있습니다.</p>
     </a>
   </div>
 </section>
