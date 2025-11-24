@@ -121,6 +121,26 @@
     return;
   }
 
+  // 이미지 목록 가져오기
+  List<String> images = new ArrayList<>();
+  try {
+    String imageSql =
+      "SELECT image_url " +
+      "FROM sell_post_image " +
+      "WHERE post_id = ? " +
+      "ORDER BY display_order ASC";
+
+    images = Db.query(imageSql, (ResultSet rs) -> {
+      List<String> result = new ArrayList<>();
+      while (rs.next()) {
+        result.add(rs.getString("image_url"));
+      }
+      return result;
+    }, postId);
+  } catch (Exception e) {
+    e.printStackTrace();
+  }
+
   // 댓글 목록 가져오기
   List<Comment> comments = new ArrayList<>();
   try {
@@ -414,6 +434,114 @@
         transform: scale(1);
       }
     }
+
+    /* 이미지 슬라이더 스타일 */
+    .image-slider {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto 32px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f0f0f0;
+    }
+
+    .slider-container {
+      position: relative;
+      width: 100%;
+      padding-top: 75%; /* 4:3 aspect ratio */
+    }
+
+    .slider-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      display: none;
+    }
+
+    .slider-image.active {
+      display: block;
+    }
+
+    .slider-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 10;
+    }
+
+    .slider-btn:hover {
+      background: rgba(0, 0, 0, 0.7);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .slider-btn.prev {
+      left: 16px;
+    }
+
+    .slider-btn.next {
+      right: 16px;
+    }
+
+    .slider-dots {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .slider-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .slider-dot.active {
+      background: white;
+      width: 24px;
+      border-radius: 5px;
+    }
+
+    .slider-counter {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.9em;
+      z-index: 10;
+    }
+
+    .no-images {
+      text-align: center;
+      padding: 80px 20px;
+      color: #999;
+      font-size: 1.1em;
+    }
   </style>
 </head>
 <body>
@@ -440,6 +568,36 @@
       <% } %>
     </div>
   </div>
+
+  <!-- 이미지 슬라이더 -->
+  <% if (!images.isEmpty()) { %>
+  <div class="image-slider">
+    <div class="slider-container">
+      <% for (int i = 0; i < images.size(); i++) { %>
+      <img src="<%= images.get(i) %>" alt="<%= post.title %>" class="slider-image <%= i == 0 ? "active" : "" %>" />
+      <% } %>
+
+      <% if (images.size() > 1) { %>
+      <button class="slider-btn prev" onclick="changeSlide(-1)">‹</button>
+      <button class="slider-btn next" onclick="changeSlide(1)">›</button>
+
+      <div class="slider-counter">
+        <span id="currentSlide">1</span> / <%= images.size() %>
+      </div>
+
+      <div class="slider-dots">
+        <% for (int i = 0; i < images.size(); i++) { %>
+        <div class="slider-dot <%= i == 0 ? "active" : "" %>" onclick="goToSlide(<%= i %>)"></div>
+        <% } %>
+      </div>
+      <% } %>
+    </div>
+  </div>
+  <% } else { %>
+  <div class="no-images">
+    📷 등록된 이미지가 없습니다
+  </div>
+  <% } %>
 
   <div class="post-body">
     <div class="post-section">
@@ -523,6 +681,59 @@
 </footer>
 
 <script>
+  // 이미지 슬라이더
+  let currentSlideIndex = 0;
+  const totalSlides = <%= images.size() %>;
+
+  function showSlide(index) {
+    const slides = document.querySelectorAll('.slider-image');
+    const dots = document.querySelectorAll('.slider-dot');
+    const counter = document.getElementById('currentSlide');
+
+    if (slides.length === 0) return;
+
+    // 인덱스 범위 체크
+    if (index >= slides.length) {
+      currentSlideIndex = 0;
+    } else if (index < 0) {
+      currentSlideIndex = slides.length - 1;
+    } else {
+      currentSlideIndex = index;
+    }
+
+    // 모든 슬라이드 숨기기
+    slides.forEach(slide => slide.classList.remove('active'));
+    dots.forEach(dot => dot.classList.remove('active'));
+
+    // 현재 슬라이드만 표시
+    slides[currentSlideIndex].classList.add('active');
+    if (dots.length > 0) {
+      dots[currentSlideIndex].classList.add('active');
+    }
+    if (counter) {
+      counter.textContent = currentSlideIndex + 1;
+    }
+  }
+
+  function changeSlide(direction) {
+    showSlide(currentSlideIndex + direction);
+  }
+
+  function goToSlide(index) {
+    showSlide(index);
+  }
+
+  // 키보드 화살표 키로 슬라이드 이동
+  document.addEventListener('keydown', function(e) {
+    if (totalSlides > 1) {
+      if (e.key === 'ArrowLeft') {
+        changeSlide(-1);
+      } else if (e.key === 'ArrowRight') {
+        changeSlide(1);
+      }
+    }
+  });
+
   // 페이지 로드 시 URL 해시에 해당하는 댓글로 스크롤
   document.addEventListener('DOMContentLoaded', function() {
     const hash = window.location.hash;
