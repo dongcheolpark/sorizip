@@ -130,38 +130,27 @@
     </div>
 
     <div class="auth-field">
-      <label class="auth-label" for="userPw2">비밀번호 확인</label>
-      <input
-        type="password"
-        id="userPw2"
-        name="userPw2"
-        class="auth-input"
-        placeholder="비밀번호를 한 번 더 입력하세요"
-        required
-      />
-    </div>
-
-    <div class="auth-field">
       <label class="auth-label" for="userName">이름</label>
       <input
         type="text"
         id="userName"
         name="userName"
         class="auth-input"
-        placeholder="실명을 입력하세요"
+        placeholder="실명을 입력해주세요"
         required
       />
     </div>
 
     <div class="auth-field">
-      <label class="auth-label" for="city">지역</label>
-      <input
-        type="text"
-        id="city"
-        name="city"
-        class="auth-input"
-        placeholder="예) 서울, 부산"
-      />
+        <label class="auth-label" for="userNickname">닉네임</label>
+        <input
+            type="text"
+            id="userNickname"
+            name="userNickname"
+            class="auth-input"
+            placeholder="사용할 별명을 입력해주세요"
+            required
+        />
     </div>
 
     <div class="auth-actions">
