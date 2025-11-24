@@ -74,7 +74,6 @@ public final class ImageUploader {
     }
   }
 
-
   /**
    * 이미지를 Cloud Storage에 업로드하고 공개 URL을 반환
    *
@@ -109,10 +108,9 @@ public final class ImageUploader {
 
           // Cloud Storage에 업로드
           BlobId blobId = BlobId.of(bucketName, objectName);
-          BlobInfo blobInfo =
-              BlobInfo.newBuilder(blobId)
-                  .setContentType(contentType)
-                  .build();
+          BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+              .setContentType(contentType)
+              .build();
 
           byte[] bytes = inputStream.readAllBytes();
           storage.create(blobInfo, bytes);
@@ -172,4 +170,3 @@ public final class ImageUploader {
     }
   }
 }
-
