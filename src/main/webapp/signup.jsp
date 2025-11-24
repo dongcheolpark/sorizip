@@ -130,6 +130,18 @@
     </div>
 
     <div class="auth-field">
+      <label class="auth-label" for="userEmail">이메일</label>
+        <input
+          type="email"
+          id="userEmail"
+          name="userEmail"
+          class="auth-input"
+          placeholder="이메일을 입력해주세요"
+          required 
+        />
+    </div>
+
+    <div class="auth-field">
       <label class="auth-label" for="userName">이름</label>
       <input
         type="text"
