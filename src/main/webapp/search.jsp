@@ -1,4 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.example.web.Db" %>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 <%
   request.setCharacterEncoding("UTF-8");
 
@@ -9,6 +13,66 @@
   String categoryParam = request.getParameter("category");
   if (categoryParam == null) categoryParam = "";
   String selectedCategory = categoryParam.trim();
+
+  // DB에서 판매 게시글 가져오기
+  class Post {
+    int id;
+    String title;
+    String description;
+    int price;
+    String authorEmail;
+    String categories;
+
+    Post(int id, String title, String description, int price, String authorEmail, String categories) {
+      this.id = id;
+      this.title = title;
+      this.description = description;
+      this.price = price;
+      this.authorEmail = authorEmail;
+      this.categories = categories;
+    }
+  }
+
+  List<Post> posts = new ArrayList<>();
+  try {
+    String sql =
+      "SELECT sp.id, sp.title, sp.description, sp.price, u.email, " +
+      "       GROUP_CONCAT(c.name SEPARATOR ', ') as categories " +
+      "FROM sell_post sp " +
+      "LEFT JOIN user u ON sp.author_id = u.id " +
+      "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
+      "LEFT JOIN category c ON spc.category_id = c.id " +
+      "GROUP BY sp.id, sp.title, sp.description, sp.price, u.email " +
+      "ORDER BY sp.created_at DESC";
+
+    posts = Db.query(sql, (ResultSet rs) -> {
+      List<Post> result = new ArrayList<>();
+      while (rs.next()) {
+        result.add(new Post(
+          rs.getInt("id"),
+          rs.getString("title"),
+          rs.getString("description"),
+          rs.getInt("price"),
+          rs.getString("email"),
+          rs.getString("categories")
+        ));
+      }
+      return result;
+    });
+  } catch (Exception e) {
+    e.printStackTrace();
+  }
+%>
+<%!
+  // 가격을 만원 단위로 포맷팅하는 함수
+  String formatPrice(int price) {
+    double manwon = price / 10000.0;
+    if (manwon == (int) manwon) {
+      return (int) manwon + "만원";
+    } else {
+      return String.format("%.1f만원", manwon);
+    }
+  }
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -111,58 +175,29 @@
 
   <hr style="margin:16px 0; border:none; border-top:1px solid #eee;" />
 
-  <!-- 결과 카드 (지금은 예시 데이터) -->
+  <!-- 결과 카드 (DB에서 동적 생성) -->
   <div class="grid-3" id="resultGrid">
+    <% for (Post post : posts) {
+       String categoriesDisplay = post.categories != null ? post.categories : "미분류";
+       String priceFormatted = formatPrice(post.price);
+    %>
     <a class="card product"
        href="#"
-       data-category="피아노"
-       data-brand="Yamaha"
-       data-city="서울"
-       data-title="야마하 업라이트 U1">
+       data-category="<%= categoriesDisplay %>"
+       data-title="<%= post.title %>">
       <div class="thumb"></div>
       <div class="meta">
-        <h3>야마하 업라이트 U1</h3>
-        <p class="muted">Yamaha · 서울</p>
+        <h3><%= post.title %></h3>
+        <p class="muted"><%= categoriesDisplay %></p>
         <div class="row">
-          <span class="price">1,800,000원</span>
-          <span class="tag">good</span>
+          <span class="price"><%= priceFormatted %></span>
         </div>
+        <% if (post.description != null && !post.description.isEmpty()) { %>
+        <p class="muted" style="font-size:0.85em; margin-top:4px;"><%= post.description %></p>
+        <% } %>
       </div>
     </a>
-
-    <a class="card product"
-       href="#"
-       data-category="일렉 기타"
-       data-brand="Fender"
-       data-city="부산"
-       data-title="펜더 스트라토캐스터">
-      <div class="thumb"></div>
-      <div class="meta">
-        <h3>펜더 스트라토캐스터</h3>
-        <p class="muted">Fender · 부산</p>
-        <div class="row">
-          <span class="price">950,000원</span>
-          <span class="tag">like-new</span>
-        </div>
-      </div>
-    </a>
-
-    <a class="card product"
-       href="#"
-       data-category="피아노"
-       data-brand="Roland"
-       data-city="대구"
-       data-title="롤랜드 디지털피아노 FP-30X">
-      <div class="thumb"></div>
-      <div class="meta">
-        <h3>롤랜드 디지털피아노 FP-30X</h3>
-        <p class="muted">Roland · 대구</p>
-        <div class="row">
-          <span class="price">680,000원</span>
-          <span class="tag">good</span>
-        </div>
-      </div>
-    </a>
+    <% } %>
   </div>
 
   <p id="emptyMessage" style="display:none; margin-top:10px;">
@@ -190,14 +225,12 @@
 
       cards.forEach((card) => {
         const title = (card.dataset.title || "").toLowerCase();
-        const brand = (card.dataset.brand || "").toLowerCase();
-        const city = (card.dataset.city || "").toLowerCase();
         const category = card.dataset.category || "";
 
-        const text = title + " " + brand + " " + city;
+        const text = title + " " + category;
 
         const matchKeyword = !q || text.includes(q);
-        const matchCategory = !currentCategory || category === currentCategory;
+        const matchCategory = !currentCategory || category.includes(currentCategory);
 
         const show = matchKeyword && matchCategory;
         card.style.display = show ? "" : "none";
