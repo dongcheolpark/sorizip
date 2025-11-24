@@ -33,32 +33,82 @@
     }
   }
 
-  List<Post> posts = new ArrayList<>();
+  // DB에서 카테고리 목록 가져오기
+  List<String> categories = new ArrayList<>();
   try {
-    String sql =
-      "SELECT sp.id, sp.title, sp.description, sp.price, u.email, " +
-      "       GROUP_CONCAT(c.name SEPARATOR ', ') as categories " +
-      "FROM sell_post sp " +
-      "LEFT JOIN user u ON sp.author_id = u.id " +
-      "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
-      "LEFT JOIN category c ON spc.category_id = c.id " +
-      "GROUP BY sp.id, sp.title, sp.description, sp.price, u.email " +
-      "ORDER BY sp.created_at DESC";
-
-    posts = Db.query(sql, (ResultSet rs) -> {
-      List<Post> result = new ArrayList<>();
+    categories = Db.query("SELECT name FROM category ORDER BY name", (ResultSet rs) -> {
+      List<String> result = new ArrayList<>();
       while (rs.next()) {
-        result.add(new Post(
-          rs.getInt("id"),
-          rs.getString("title"),
-          rs.getString("description"),
-          rs.getInt("price"),
-          rs.getString("email"),
-          rs.getString("categories")
-        ));
+        result.add(rs.getString("name"));
       }
       return result;
     });
+  } catch (Exception e) {
+    e.printStackTrace();
+  }
+
+  List<Post> posts = new ArrayList<>();
+  try {
+    String sql;
+    if (!selectedCategory.isEmpty()) {
+      // 카테고리 필터가 있을 때
+      sql =
+        "SELECT sp.id, sp.title, sp.description, sp.price, u.email, " +
+        "       GROUP_CONCAT(c.name SEPARATOR ', ') as categories " +
+        "FROM sell_post sp " +
+        "LEFT JOIN user u ON sp.author_id = u.id " +
+        "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
+        "LEFT JOIN category c ON spc.category_id = c.id " +
+        "WHERE sp.id IN ( " +
+        "  SELECT DISTINCT sp2.id FROM sell_post sp2 " +
+        "  JOIN sell_post_category spc2 ON sp2.id = spc2.sell_post_id " +
+        "  JOIN category c2 ON spc2.category_id = c2.id " +
+        "  WHERE c2.name = ? " +
+        ") " +
+        "GROUP BY sp.id, sp.title, sp.description, sp.price, u.email " +
+        "ORDER BY sp.created_at DESC";
+
+      posts = Db.query(sql, (ResultSet rs) -> {
+        List<Post> result = new ArrayList<>();
+        while (rs.next()) {
+          result.add(new Post(
+            rs.getInt("id"),
+            rs.getString("title"),
+            rs.getString("description"),
+            rs.getInt("price"),
+            rs.getString("email"),
+            rs.getString("categories")
+          ));
+        }
+        return result;
+      }, selectedCategory);
+    } else {
+      // 전체 조회
+      sql =
+        "SELECT sp.id, sp.title, sp.description, sp.price, u.email, " +
+        "       GROUP_CONCAT(c.name SEPARATOR ', ') as categories " +
+        "FROM sell_post sp " +
+        "LEFT JOIN user u ON sp.author_id = u.id " +
+        "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
+        "LEFT JOIN category c ON spc.category_id = c.id " +
+        "GROUP BY sp.id, sp.title, sp.description, sp.price, u.email " +
+        "ORDER BY sp.created_at DESC";
+
+      posts = Db.query(sql, (ResultSet rs) -> {
+        List<Post> result = new ArrayList<>();
+        while (rs.next()) {
+          result.add(new Post(
+            rs.getInt("id"),
+            rs.getString("title"),
+            rs.getString("description"),
+            rs.getInt("price"),
+            rs.getString("email"),
+            rs.getString("categories")
+          ));
+        }
+        return result;
+      });
+    }
   } catch (Exception e) {
     e.printStackTrace();
   }
@@ -121,47 +171,13 @@
       전체
     </button>
 
+    <% for (String category : categories) { %>
     <button type="button"
-            class="chip chip-filter <%= "어쿠스틱 기타".equals(selectedCategory) ? "active" : "" %>"
-            data-category="어쿠스틱 기타">
-      어쿠스틱 기타
+            class="chip chip-filter <%= category.equals(selectedCategory) ? "active" : "" %>"
+            data-category="<%= category %>">
+      <%= category %>
     </button>
-
-    <button type="button"
-            class="chip chip-filter <%= "일렉 기타".equals(selectedCategory) ? "active" : "" %>"
-            data-category="일렉 기타">
-      일렉 기타
-    </button>
-
-    <button type="button"
-            class="chip chip-filter <%= "베이스".equals(selectedCategory) ? "active" : "" %>"
-            data-category="베이스">
-      베이스
-    </button>
-
-    <button type="button"
-            class="chip chip-filter <%= "피아노".equals(selectedCategory) ? "active" : "" %>"
-            data-category="피아노">
-      피아노
-    </button>
-
-    <button type="button"
-            class="chip chip-filter <%= "신디사이저".equals(selectedCategory) ? "active" : "" %>"
-            data-category="신디사이저">
-      신디사이저
-    </button>
-
-    <button type="button"
-            class="chip chip-filter <%= "관악기".equals(selectedCategory) ? "active" : "" %>"
-            data-category="관악기">
-      관악기
-    </button>
-
-    <button type="button"
-            class="chip chip-filter <%= "드럼".equals(selectedCategory) ? "active" : "" %>"
-            data-category="드럼">
-      드럼
-    </button>
+    <% } %>
   </div>
 </div>
 
@@ -229,24 +245,33 @@
 
         const text = title + " " + category;
 
+        // 키워드만 클라이언트 사이드에서 필터링 (카테고리는 서버에서 이미 필터링됨)
         const matchKeyword = !q || text.includes(q);
-        const matchCategory = !currentCategory || category.includes(currentCategory);
 
-        const show = matchKeyword && matchCategory;
-        card.style.display = show ? "" : "none";
-        if (show) visibleCount++;
+        card.style.display = matchKeyword ? "" : "none";
+        if (matchKeyword) visibleCount++;
       });
 
       emptyMessage.style.display = visibleCount === 0 ? "block" : "none";
     }
 
-    // 카테고리 칩 클릭
+    // 카테고리 칩 클릭 - 서버 사이드 필터링을 위해 페이지 리로드
     categoryChips.forEach((chip) => {
       chip.addEventListener("click", () => {
-        categoryChips.forEach((c) => c.classList.remove("active"));
-        chip.classList.add("active");
-        currentCategory = chip.dataset.category || "";
-        applyFilter();
+        const category = chip.dataset.category || "";
+        const currentKeyword = keywordInput.value.trim();
+
+        // URL 파라미터 구성
+        let url = "search.jsp?";
+        if (currentKeyword) {
+          url += "q=" + encodeURIComponent(currentKeyword) + "&";
+        }
+        if (category) {
+          url += "category=" + encodeURIComponent(category);
+        }
+
+        // 페이지 이동
+        window.location.href = url;
       });
     });
 
