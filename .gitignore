@@ -29,3 +29,4 @@ replay_pid*
 build/
 src/main/resources/db.properties
 .env
+bin/main/db.properties
