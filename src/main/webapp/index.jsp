@@ -1,4 +1,74 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.example.web.Db" %>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
+<%
+  request.setCharacterEncoding("UTF-8");
+
+  // DB에서 최신 매물 3개 가져오기
+  class RecentPost {
+    final int id;
+    final String title;
+    final String author;
+    final int price;
+    final String categories;
+    final String city;
+    final String condition;
+    final String imageUrl;
+
+    RecentPost(int id, String title, String author, int price, String categories, String city, String condition, String imageUrl) {
+      this.id = id;
+      this.title = title;
+      this.author = author;
+      this.price = price;
+      this.categories = categories;
+      this.city = city;
+      this.condition = condition;
+      this.imageUrl = imageUrl;
+    }
+  }
+
+  List<RecentPost> recentPosts = new ArrayList<>();
+  try {
+    String sql =
+      "SELECT sp.id, sp.title, sp.price, u.nickname as author, " +
+      "       GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories, " +
+      "       (SELECT image_url FROM sell_post_image WHERE post_id = sp.id ORDER BY display_order LIMIT 1) as image_url " +
+      "FROM sell_post sp " +
+      "LEFT JOIN user u ON sp.author_id = u.id " +
+      "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
+      "LEFT JOIN category c ON spc.category_id = c.id " +
+      "GROUP BY sp.id, sp.title, sp.price, u.nickname, sp.created_at " +
+      "ORDER BY sp.created_at DESC " +
+      "LIMIT 3";
+
+    recentPosts = Db.query(sql, (ResultSet rs) -> {
+      List<RecentPost> result = new ArrayList<>();
+      while (rs.next()) {
+        result.add(new RecentPost(
+          rs.getInt("id"),
+          rs.getString("title"),
+          rs.getString("author"),
+          rs.getInt("price"),
+          rs.getString("categories"),
+          null, // city - 컬럼 없음
+          null, // condition - 컬럼 없음
+          rs.getString("image_url")
+        ));
+      }
+      return result;
+    });
+  } catch (Exception e) {
+    e.printStackTrace();
+  }
+%>
+<%!
+  // 가격 포맷팅 함수
+  String formatPrice(int price) {
+    return String.format("%,d원", price);
+  }
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -65,55 +135,28 @@
 </section>
 
 <section id="market" class="section">
-<h2>최신 매물</h2>
+  <div class="section-header">
+    <h2>최신 매물 <a href="search.jsp" class="more-link">더보기 →</a></h2>
+  </div>
   <div class="grid-3">
-    <a class="card product" href="#"
-       data-title="야마하 업라이트 U1"
-       data-brand="Yamaha"
-       data-city="서울">
-      <div class="thumb"></div>
-      <div class="meta">
-        <h3>야마하 업라이트 U1</h3>
-        <p class="muted">Yamaha</p>
-        <div class="row">
-          <span class="price">1,800,000원</span>
-          <span class="tag">good</span>
-          <span class="muted">서울</span>
-        </div>
-      </div>
-    </a>
-
-    <a class="card product" href="#"
-       data-title="펜더 스트라토캐스터"
-       data-brand="Fender"
-       data-city="부산">
-      <div class="thumb"></div>
-      <div class="meta">
-        <h3>펜더 스트라토캐스터</h3>
-        <p class="muted">Fender</p>
-        <div class="row">
-          <span class="price">950,000원</span>
-          <span class="tag">like-new</span>
-          <span class="muted">부산</span>
-        </div>
-      </div>
-    </a>
-
-    <a class="card product" href="#"
-       data-title="롤랜드 디지털피아노 FP-30X"
-       data-brand="Roland"
-       data-city="대구">
-      <div class="thumb"></div>
-      <div class="meta">
-        <h3>롤랜드 디지털피아노 FP-30X</h3>
-        <p class="muted">Roland</p>
-        <div class="row">
-          <span class="price">680,000원</span>
-          <span class="tag">good</span>
-          <span class="muted">대구</span>
-        </div>
-      </div>
-    </a>
+    <% if (recentPosts.isEmpty()) { %>
+      <p class="muted" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+        등록된 매물이 없습니다.
+      </p>
+    <% } else { %>
+      <% for (RecentPost post : recentPosts) {
+         request.setAttribute("productId", post.id);
+         request.setAttribute("productTitle", post.title);
+         request.setAttribute("productAuthor", post.author);
+         request.setAttribute("productPrice", post.price);
+         request.setAttribute("productCategories", post.categories);
+         request.setAttribute("productCity", post.city);
+         request.setAttribute("productCondition", post.condition);
+         request.setAttribute("productImageUrl", post.imageUrl);
+      %>
+        <jsp:include page="WEB-INF/includes/productCard.jsp" />
+      <% } %>
+    <% } %>
   </div>
 </section>
 

@@ -20,16 +20,22 @@
     String title;
     String description;
     int price;
-    String authorEmail;
+    String author;
     String categories;
+    String city;
+    String condition;
+    String imageUrl;
 
-    Post(int id, String title, String description, int price, String authorEmail, String categories) {
+    Post(int id, String title, String description, int price, String author, String categories, String city, String condition, String imageUrl) {
       this.id = id;
       this.title = title;
       this.description = description;
       this.price = price;
-      this.authorEmail = authorEmail;
+      this.author = author;
       this.categories = categories;
+      this.city = city;
+      this.condition = condition;
+      this.imageUrl = imageUrl;
     }
   }
 
@@ -53,8 +59,9 @@
     if (!selectedCategory.isEmpty()) {
       // 카테고리 필터가 있을 때
       sql =
-        "SELECT sp.id, sp.title, sp.description, sp.price, u.email, " +
-        "       GROUP_CONCAT(c.name SEPARATOR ', ') as categories " +
+        "SELECT sp.id, sp.title, sp.description, sp.price, u.nickname as author, " +
+        "       GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories, " +
+        "       (SELECT image_url FROM sell_post_image WHERE post_id = sp.id ORDER BY display_order LIMIT 1) as image_url " +
         "FROM sell_post sp " +
         "LEFT JOIN user u ON sp.author_id = u.id " +
         "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
@@ -65,7 +72,7 @@
         "  JOIN category c2 ON spc2.category_id = c2.id " +
         "  WHERE c2.name = ? " +
         ") " +
-        "GROUP BY sp.id, sp.title, sp.description, sp.price, u.email " +
+        "GROUP BY sp.id, sp.title, sp.description, sp.price, u.nickname " +
         "ORDER BY sp.created_at DESC";
 
       posts = Db.query(sql, (ResultSet rs) -> {
@@ -76,8 +83,11 @@
             rs.getString("title"),
             rs.getString("description"),
             rs.getInt("price"),
-            rs.getString("email"),
-            rs.getString("categories")
+            rs.getString("author"),
+            rs.getString("categories"),
+            null, // city - 컬럼 없음
+            null, // condition - 컬럼 없음
+            rs.getString("image_url")
           ));
         }
         return result;
@@ -85,13 +95,14 @@
     } else {
       // 전체 조회
       sql =
-        "SELECT sp.id, sp.title, sp.description, sp.price, u.email, " +
-        "       GROUP_CONCAT(c.name SEPARATOR ', ') as categories " +
+        "SELECT sp.id, sp.title, sp.description, sp.price, u.nickname as author, " +
+        "       GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories, " +
+        "       (SELECT image_url FROM sell_post_image WHERE post_id = sp.id ORDER BY display_order LIMIT 1) as image_url " +
         "FROM sell_post sp " +
         "LEFT JOIN user u ON sp.author_id = u.id " +
         "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
         "LEFT JOIN category c ON spc.category_id = c.id " +
-        "GROUP BY sp.id, sp.title, sp.description, sp.price, u.email " +
+        "GROUP BY sp.id, sp.title, sp.description, sp.price, u.nickname " +
         "ORDER BY sp.created_at DESC";
 
       posts = Db.query(sql, (ResultSet rs) -> {
@@ -102,8 +113,11 @@
             rs.getString("title"),
             rs.getString("description"),
             rs.getInt("price"),
-            rs.getString("email"),
-            rs.getString("categories")
+            rs.getString("author"),
+            rs.getString("categories"),
+            null, // city - 컬럼 없음
+            null, // condition - 컬럼 없음
+            rs.getString("image_url")
           ));
         }
         return result;
@@ -137,7 +151,16 @@
 <%@ include file="WEB-INF/includes/header.jsp" %>
 
 <section class="section">
-  <h2>검색 결과</h2>
+  <div style="display: flex; align-items: center; margin-bottom: 18px;">
+    <h2 style="margin: 0;">검색 결과</h2>
+    <p class="muted" style="margin: 10px 0 4px 10px;">
+      <% if (!keyword.isEmpty()) { %>
+        "<strong><%= keyword %></strong>"에 대한 검색 결과
+      <% } else { %>
+        검색어와 카테고리 필터를 조합해 원하는 악기를 찾아보세요.
+      <% } %>
+    </p>
+  </div>
 
   <!-- 상단 검색창 -->
   <form class="search-bar" method="get" action="search.jsp">
@@ -173,44 +196,29 @@
   </div>
 </div>
 
-  <p class="muted" style="margin-top:6px;">
-    <% if (!keyword.isEmpty()) { %>
-      "<strong><%= keyword %></strong>"에 대한 검색 결과
-    <% } else { %>
-      검색어와 카테고리 필터를 조합해 원하는 악기를 찾아보세요.
-    <% } %>
-  </p>
-
   <hr style="margin:16px 0; border:none; border-top:1px solid #eee;" />
 
   <!-- 결과 카드 (DB에서 동적 생성) -->
   <div class="grid-3" id="resultGrid">
-    <% for (Post post : posts) {
-       String categoriesDisplay = post.categories != null ? post.categories : "미분류";
-       String priceFormatted = formatPrice(post.price);
-    %>
-    <a class="card product"
-       href="show.jsp?id=<%= post.id %>"
-       data-category="<%= categoriesDisplay %>"
-       data-title="<%= post.title %>">
-      <div class="thumb"></div>
-      <div class="meta">
-        <h3><%= post.title %></h3>
-        <p class="muted"><%= categoriesDisplay %></p>
-        <div class="row">
-          <span class="price"><%= priceFormatted %></span>
-        </div>
-        <% if (post.description != null && !post.description.isEmpty()) { %>
-        <p class="muted" style="font-size:0.85em; margin-top:4px;"><%= post.description %></p>
-        <% } %>
-      </div>
-    </a>
+    <% if (posts.isEmpty()) { %>
+      <p class="muted" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+        조건에 맞는 매물이 없습니다. 검색어와 카테고리를 바꿔보세요.
+      </p>
+    <% } else { %>
+      <% for (Post post : posts) {
+         request.setAttribute("productId", post.id);
+         request.setAttribute("productTitle", post.title);
+         request.setAttribute("productAuthor", post.author);
+         request.setAttribute("productPrice", post.price);
+         request.setAttribute("productCategories", post.categories);
+         request.setAttribute("productCity", post.city);
+         request.setAttribute("productCondition", post.condition);
+         request.setAttribute("productImageUrl", post.imageUrl);
+      %>
+        <jsp:include page="WEB-INF/includes/productCard.jsp" />
+      <% } %>
     <% } %>
   </div>
-
-  <p id="emptyMessage" style="display:none; margin-top:10px;">
-    조건에 맞는 매물이 없습니다. 검색어와 카테고리를 바꿔보세요.
-  </p>
 </section>
 
 <footer class="footer">
@@ -222,7 +230,7 @@
   (function () {
     const keywordInput = document.getElementById("searchInput");
     const categoryChips = document.querySelectorAll(".chip-filter");
-    const cards = document.querySelectorAll(".card.product");
+    const cards = document.querySelectorAll(".productCard");
     const emptyMessage = document.getElementById("emptyMessage");
 
     let currentCategory = "<%= selectedCategory %>";

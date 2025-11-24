@@ -9,12 +9,6 @@
 <header class="nav">
   <a href="index.jsp" class="brand">소리집 <span class="sub">sorizip</span></a>
   
-  <nav class="nav-center">
-    <a href="index.jsp#features">서비스 소개</a>
-    <a href="index.jsp#categories">카테고리</a>
-    <a href="search.jsp">검색</a>
-  </nav>
-  
   <div class="nav-right">
     <% if (isLoggedIn) { %>
       <span class="user-info"><%= userUId %>님</span>

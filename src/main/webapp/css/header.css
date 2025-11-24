@@ -7,7 +7,16 @@
   height: 60px;
   border-bottom: 1px solid #eee;
   background: #fff;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+/* 헤더 고정으로 인한 컨텐츠 밀림 방지 */
+body {
+  padding-top: 60px;
 }
 
 .nav .brand {
