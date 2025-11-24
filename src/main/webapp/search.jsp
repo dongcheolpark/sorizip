@@ -198,7 +198,7 @@
        String priceFormatted = formatPrice(post.price);
     %>
     <a class="card product"
-       href="#"
+       href="show.jsp?id=<%= post.id %>"
        data-category="<%= categoriesDisplay %>"
        data-title="<%= post.title %>">
       <div class="thumb"></div>
