@@ -16,6 +16,7 @@
     <a href="#categories">카테고리</a>
     <a href="#market">추천 매물</a>
     <a href="#cta">시작하기</a>
+    <a href="new.jsp" style="color: #FF6B35; font-weight: 600;">+ 매물 등록</a>
   </nav>
 </header>
 
@@ -130,7 +131,7 @@
 <section id="cta" class="section cta">
   <h2>지금 시작하세요</h2>
   <p>회원가입 없이도 구경 가능. 로그인 기능은 추후 연동 예정입니다.</p>
-  <a class="btn primary" href="#market">매물 보러가기</a>
+  <a class="btn primary" href="search.jsp">매물 보러가기</a>
 </section>
 
 <footer class="footer">
