@@ -38,27 +38,10 @@
     </form>
 
     <div class="cta-row">
+      <a class="btn primary" href="search.jsp">매물 보러가기</a>
       <a class="btn ghost" href="#market">추천 매물 보기</a>
       <a class="btn ghost" href="#features">서비스 소개</a>
     </div>
-  </div>
-</section>
-
-<section id="features" class="section">
-  <h2>왜 소리집인가</h2>
-  <div class="grid-3">
-    <a class="card" href="#">
-      <h3>악기 특화 검색</h3>
-      <p>브랜드, 모델, 상태, 도시, 가격으로 정밀 필터를 제공합니다.</p>
-    </a>
-    <a class="card" href="#">
-      <h3>안심 거래 가이드</h3>
-      <p>대면 체크리스트와 직거래 안전 수칙으로 분쟁을 줄입니다.</p>
-    </a>
-    <a class="card" href="#">
-      <h3>투명한 매물 정보</h3>
-      <p>실사진, 상태표기, 점검 내역을 한눈에 확인할 수 있습니다.</p>
-    </a>
   </div>
 </section>
 
@@ -128,10 +111,22 @@
   </div>
 </section>
 
-<section id="cta" class="section cta">
-  <h2>지금 시작하세요</h2>
-  <p>회원가입 없이도 구경 가능. 로그인 기능은 추후 연동 예정입니다.</p>
-  <a class="btn primary" href="search.jsp">매물 보러가기</a>
+<section id="features" class="section">
+  <h2>왜 소리집인가</h2>
+  <div class="grid-3">
+    <a class="card" href="#">
+      <h3>악기 특화 검색</h3>
+      <p>브랜드, 모델, 상태, 도시, 가격으로 정밀 필터를 제공합니다.</p>
+    </a>
+    <a class="card" href="#">
+      <h3>안심 거래 가이드</h3>
+      <p>대면 체크리스트와 직거래 안전 수칙으로 분쟁을 줄입니다.</p>
+    </a>
+    <a class="card" href="#">
+      <h3>투명한 매물 정보</h3>
+      <p>실사진, 상태표기, 점검 내역을 한눈에 확인할 수 있습니다.</p>
+    </a>
+  </div>
 </section>
 
 <footer class="footer">
