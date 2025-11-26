@@ -89,149 +89,7 @@
   <title>매물 등록 – 소리집 sorizip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="css/search.css" />
-  <style>
-    .form-container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-
-    .form-header {
-      margin-bottom: 32px;
-      border-bottom: 2px solid #f0f0f0;
-      padding-bottom: 20px;
-    }
-
-    .form-title {
-      font-size: 2em;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .form-group {
-      margin-bottom: 24px;
-    }
-
-    .form-label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #444;
-      font-size: 1.1em;
-    }
-
-    .form-label .required {
-      color: #FF6B35;
-      margin-left: 4px;
-    }
-
-    .form-input,
-    .form-textarea {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 6px;
-      font-size: 1em;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
-    }
-
-    .form-input:focus,
-    .form-textarea:focus {
-      outline: none;
-      border-color: #FF6B35;
-    }
-
-    .form-textarea {
-      min-height: 200px;
-      resize: vertical;
-      font-family: inherit;
-    }
-
-    .form-hint {
-      font-size: 0.9em;
-      color: #666;
-      margin-top: 6px;
-    }
-
-    .checkbox-group {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .checkbox-item {
-      display: flex;
-      align-items: center;
-    }
-
-    .checkbox-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      margin-right: 8px;
-      cursor: pointer;
-    }
-
-    .checkbox-item label {
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 32px;
-      padding-top: 24px;
-      border-top: 2px solid #f0f0f0;
-    }
-
-    .btn {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 6px;
-      font-size: 1em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: #FF6B35;
-      color: white;
-      flex: 1;
-    }
-
-    .btn-primary:hover {
-      background: #e55a2a;
-      transform: translateY(-1px);
-    }
-
-    .btn-secondary {
-      background: #f0f0f0;
-      color: #333;
-      padding: 12px 24px;
-      text-decoration: none;
-      display: inline-block;
-      text-align: center;
-    }
-
-    .btn-secondary:hover {
-      background: #e0e0e0;
-    }
-
-    .back-link {
-      display: inline-block;
-      margin-bottom: 20px;
-      color: #FF6B35;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .back-link:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <link rel="stylesheet" href="css/form.css" />
 </head>
 <body>
 
@@ -358,40 +216,16 @@
 
     selectedFiles.forEach((file, index) => {
       const wrapper = document.createElement('div');
-      wrapper.style.position = 'relative';
-      wrapper.style.display = 'inline-block';
+      wrapper.className = 'image-preview-wrapper';
 
       const img = document.createElement('img');
       img.src = file.dataUrl;
-      img.style.width = '120px';
-      img.style.height = '120px';
-      img.style.objectFit = 'cover';
-      img.style.borderRadius = '8px';
-      img.style.border = '2px solid #ddd';
+      img.className = 'image-preview';
 
       const removeBtn = document.createElement('button');
       removeBtn.innerHTML = '×';
       removeBtn.type = 'button';
-      removeBtn.style.position = 'absolute';
-      removeBtn.style.top = '4px';
-      removeBtn.style.right = '4px';
-      removeBtn.style.width = '24px';
-      removeBtn.style.height = '24px';
-      removeBtn.style.borderRadius = '4px';
-      removeBtn.style.background = 'rgba(0, 0, 0, 0.5)';
-      removeBtn.style.color = 'white';
-      removeBtn.style.border = 'none';
-      removeBtn.style.cursor = 'pointer';
-      removeBtn.style.fontSize = '18px';
-      removeBtn.style.lineHeight = '1';
-      removeBtn.style.padding = '0';
-      removeBtn.style.transition = 'background 0.2s';
-      removeBtn.onmouseover = function() {
-        this.style.background = 'rgba(0, 0, 0, 0.7)';
-      };
-      removeBtn.onmouseout = function() {
-        this.style.background = 'rgba(0, 0, 0, 0.5)';
-      };
+      removeBtn.className = 'image-remove-btn';
       removeBtn.onclick = function() {
         selectedFiles.splice(index, 1);
         updateFileInput();

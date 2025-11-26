@@ -5,86 +5,8 @@
   <meta charset="UTF-8" />
   <title>회원가입 – 소리집 sorizip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- 공통 스타일 재사용 -->
   <link rel="stylesheet" href="css/index.css" />
-  <style>
-    .auth-wrapper {
-      min-height: calc(100vh - 60px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 18px;
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 380px;
-      border-radius: 16px;
-      border: 1px solid #eee;
-      background: #fff;
-      padding: 24px 22px 22px;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
-    }
-
-    .auth-title {
-      margin: 0 0 4px;
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-    .auth-sub {
-      margin: 0 0 18px;
-      font-size: 0.9rem;
-      color: #777;
-    }
-
-    .auth-field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 14px;
-    }
-
-    .auth-label {
-      font-size: 0.85rem;
-      color: #555;
-    }
-
-    .auth-input,
-    .auth-select {
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 0.95rem;
-    }
-
-    .auth-input:focus,
-    .auth-select:focus {
-      outline: none;
-      border-color: #ff8a00;
-      box-shadow: 0 0 0 1px #ffedd5;
-    }
-
-    .auth-actions {
-      margin-top: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .btn.full {
-      width: 100%;
-      text-align: center;
-      display: inline-block;
-    }
-
-    .auth-helper {
-      margin-top: 10px;
-      font-size: 0.8rem;
-      color: #999;
-      text-align: center;
-    }
-  </style>
+  <link rel="stylesheet" href="css/auth.css" />
 </head>
 <body>
 

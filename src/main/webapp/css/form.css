@@ -1,0 +1,225 @@
+/* 폼 페이지 공통 스타일 (new, edit) */
+
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.form-header {
+  margin-bottom: 32px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 20px;
+}
+
+.form-title {
+  font-size: 2em;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #444;
+  font-size: 1.1em;
+}
+
+.form-label .required {
+  color: #ff6b35;
+  margin-left: 4px;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1em;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #ff6b35;
+}
+
+.form-textarea {
+  min-height: 200px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.form-hint {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 6px;
+}
+
+.checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.checkbox-item label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #ff6b35;
+  color: white;
+  flex: 1;
+}
+
+.btn-primary:hover {
+  background: #e55a2a;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+  padding: 12px 24px;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #ff6b35;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.image-url-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.image-url-item .form-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.btn-add-image {
+  padding: 8px 16px;
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.btn-add-image:hover {
+  background: #e0e0e0;
+}
+
+.btn-remove-image {
+  padding: 8px 16px;
+  background: white;
+  color: #f44336;
+  border: 1px solid #f44336;
+  border-radius: 6px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-remove-image:hover {
+  background: #f44336;
+  color: white;
+}
+
+/* 이미지 미리보기 컨테이너 및 래퍼 */
+.image-preview-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.image-preview {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #ddd;
+}
+
+/* 이미지 삭제 버튼 */
+.image-remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+  transition: background 0.2s;
+}
+
+.image-remove-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
