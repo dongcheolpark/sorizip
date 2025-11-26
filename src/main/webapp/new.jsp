@@ -347,29 +347,87 @@
     }
   });
 
-  // 이미지 미리보기
-  document.querySelector('input[name="images"]').addEventListener('change', function(e) {
+  // 이미지 관리용 배열
+  let selectedFiles = [];
+  const fileInput = document.querySelector('input[name="images"]');
+
+  // 이미지 미리보기 렌더링
+  function renderImagePreviews() {
     const previewContainer = document.getElementById('imagePreviewContainer');
     previewContainer.innerHTML = '';
 
-    const files = e.target.files;
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    selectedFiles.forEach((file, index) => {
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'relative';
+      wrapper.style.display = 'inline-block';
+
+      const img = document.createElement('img');
+      img.src = file.dataUrl;
+      img.style.width = '120px';
+      img.style.height = '120px';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '8px';
+      img.style.border = '2px solid #ddd';
+
+      const removeBtn = document.createElement('button');
+      removeBtn.innerHTML = '×';
+      removeBtn.type = 'button';
+      removeBtn.style.position = 'absolute';
+      removeBtn.style.top = '4px';
+      removeBtn.style.right = '4px';
+      removeBtn.style.width = '24px';
+      removeBtn.style.height = '24px';
+      removeBtn.style.borderRadius = '4px';
+      removeBtn.style.background = 'rgba(0, 0, 0, 0.5)';
+      removeBtn.style.color = 'white';
+      removeBtn.style.border = 'none';
+      removeBtn.style.cursor = 'pointer';
+      removeBtn.style.fontSize = '18px';
+      removeBtn.style.lineHeight = '1';
+      removeBtn.style.padding = '0';
+      removeBtn.style.transition = 'background 0.2s';
+      removeBtn.onmouseover = function() {
+        this.style.background = 'rgba(0, 0, 0, 0.7)';
+      };
+      removeBtn.onmouseout = function() {
+        this.style.background = 'rgba(0, 0, 0, 0.5)';
+      };
+      removeBtn.onclick = function() {
+        selectedFiles.splice(index, 1);
+        updateFileInput();
+        renderImagePreviews();
+      };
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(removeBtn);
+      previewContainer.appendChild(wrapper);
+    });
+  }
+
+  // FileInput 업데이트
+  function updateFileInput() {
+    const dt = new DataTransfer();
+    selectedFiles.forEach(file => dt.items.add(file.file));
+    fileInput.files = dt.files;
+  }
+
+  // 파일 선택 시 기존 파일에 추가
+  fileInput.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+
+    files.forEach(file => {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = function(event) {
-          const img = document.createElement('img');
-          img.src = event.target.result;
-          img.style.width = '120px';
-          img.style.height = '120px';
-          img.style.objectFit = 'cover';
-          img.style.borderRadius = '8px';
-          img.style.border = '2px solid #ddd';
-          previewContainer.appendChild(img);
+          selectedFiles.push({
+            file: file,
+            dataUrl: event.target.result
+          });
+          renderImagePreviews();
         };
         reader.readAsDataURL(file);
       }
-    }
+    });
   });
 </script>
 

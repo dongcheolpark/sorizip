@@ -86,6 +86,21 @@
     e.printStackTrace();
   }
 
+  // 게시글의 이미지 목록 가져오기
+  List<String> existingImages = new ArrayList<>();
+  try {
+    String imageSql = "SELECT image_url FROM sell_post_image WHERE post_id = ? ORDER BY display_order ASC";
+    existingImages = Db.query(imageSql, (ResultSet rs) -> {
+      List<String> result = new ArrayList<>();
+      while (rs.next()) {
+        result.add(rs.getString("image_url"));
+      }
+      return result;
+    }, postId);
+  } catch (Exception e) {
+    e.printStackTrace();
+  }
+
   // DB에서 전체 카테고리 목록 가져오기
   class Category {
     final int id;
@@ -259,6 +274,52 @@
     .back-link:hover {
       text-decoration: underline;
     }
+
+    .image-url-item {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .image-url-item .form-input {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .btn-add-image {
+      padding: 8px 16px;
+      background: #f0f0f0;
+      color: #333;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
+    .btn-add-image:hover {
+      background: #e0e0e0;
+    }
+
+    .btn-remove-image {
+      padding: 8px 16px;
+      background: white;
+      color: #f44336;
+      border: 1px solid #f44336;
+      border-radius: 6px;
+      font-size: 0.85em;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-remove-image:hover {
+      background: #f44336;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -272,7 +333,7 @@
     <h1 class="form-title">악기 매물 수정</h1>
   </div>
 
-  <form method="post" action="editPost">
+  <form method="post" action="editPost" enctype="multipart/form-data">
     <input type="hidden" name="id" value="<%= post.id %>" />
 
     <div class="form-group">
@@ -332,6 +393,21 @@
 
     <div class="form-group">
       <label class="form-label">
+        이미지 업로드
+      </label>
+      <input
+        type="file"
+        name="images"
+        class="form-input"
+        accept="image/*"
+        multiple
+      />
+      <div class="form-hint">여러 개의 이미지를 선택할 수 있습니다 (최대 10MB per file)</div>
+      <div id="imagePreviewContainer" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">
         상세 설명
       </label>
       <textarea
@@ -363,6 +439,164 @@
       alert('최소 하나의 카테고리를 선택해주세요.');
       return false;
     }
+  });
+
+  // 기존 이미지와 새 파일 관리
+  const existingImages = [
+    <% for (int i = 0; i < existingImages.size(); i++) { %>
+      '<%= existingImages.get(i) %>'<%= i < existingImages.size() - 1 ? "," : "" %>
+    <% } %>
+  ];
+
+  let keepExistingImages = [...existingImages];
+  let selectedFiles = [];
+  const fileInput = document.querySelector('input[name="images"]');
+
+  // 이미지 미리보기 렌더링
+  function renderImagePreviews() {
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    previewContainer.innerHTML = '';
+
+    // 기존 이미지 표시
+    keepExistingImages.forEach((imageUrl, index) => {
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'relative';
+      wrapper.style.display = 'inline-block';
+
+      const img = document.createElement('img');
+      img.src = imageUrl;
+      img.style.width = '120px';
+      img.style.height = '120px';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '8px';
+      img.style.border = '2px solid #ddd';
+      img.onerror = function() {
+        img.style.border = '2px solid #f44336';
+        img.alt = '이미지 로드 실패';
+      };
+
+      const removeBtn = document.createElement('button');
+      removeBtn.innerHTML = '×';
+      removeBtn.type = 'button';
+      removeBtn.style.position = 'absolute';
+      removeBtn.style.top = '4px';
+      removeBtn.style.right = '4px';
+      removeBtn.style.width = '24px';
+      removeBtn.style.height = '24px';
+      removeBtn.style.borderRadius = '4px';
+      removeBtn.style.background = 'rgba(0, 0, 0, 0.5)';
+      removeBtn.style.color = 'white';
+      removeBtn.style.border = 'none';
+      removeBtn.style.cursor = 'pointer';
+      removeBtn.style.fontSize = '18px';
+      removeBtn.style.lineHeight = '1';
+      removeBtn.style.padding = '0';
+      removeBtn.style.transition = 'background 0.2s';
+      removeBtn.onmouseover = function() {
+        this.style.background = 'rgba(0, 0, 0, 0.7)';
+      };
+      removeBtn.onmouseout = function() {
+        this.style.background = 'rgba(0, 0, 0, 0.5)';
+      };
+      removeBtn.onclick = function() {
+        keepExistingImages.splice(index, 1);
+        renderImagePreviews();
+      };
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(removeBtn);
+      previewContainer.appendChild(wrapper);
+    });
+
+    // 새 파일 표시
+    selectedFiles.forEach((file, index) => {
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'relative';
+      wrapper.style.display = 'inline-block';
+
+      const img = document.createElement('img');
+      img.src = file.dataUrl;
+      img.style.width = '120px';
+      img.style.height = '120px';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '8px';
+      img.style.border = '2px solid #ddd';
+
+      const removeBtn = document.createElement('button');
+      removeBtn.innerHTML = '×';
+      removeBtn.type = 'button';
+      removeBtn.style.position = 'absolute';
+      removeBtn.style.top = '4px';
+      removeBtn.style.right = '4px';
+      removeBtn.style.width = '24px';
+      removeBtn.style.height = '24px';
+      removeBtn.style.borderRadius = '4px';
+      removeBtn.style.background = 'rgba(0, 0, 0, 0.5)';
+      removeBtn.style.color = 'white';
+      removeBtn.style.border = 'none';
+      removeBtn.style.cursor = 'pointer';
+      removeBtn.style.fontSize = '18px';
+      removeBtn.style.lineHeight = '1';
+      removeBtn.style.padding = '0';
+      removeBtn.style.transition = 'background 0.2s';
+      removeBtn.onmouseover = function() {
+        this.style.background = 'rgba(0, 0, 0, 0.7)';
+      };
+      removeBtn.onmouseout = function() {
+        this.style.background = 'rgba(0, 0, 0, 0.5)';
+      };
+      removeBtn.onclick = function() {
+        selectedFiles.splice(index, 1);
+        updateFileInput();
+        renderImagePreviews();
+      };
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(removeBtn);
+      previewContainer.appendChild(wrapper);
+    });
+  }
+
+  // FileInput 업데이트
+  function updateFileInput() {
+    const dt = new DataTransfer();
+    selectedFiles.forEach(file => dt.items.add(file.file));
+    fileInput.files = dt.files;
+  }
+
+  // 페이지 로드 시 기존 이미지 표시
+  renderImagePreviews();
+
+  // 파일 선택 시 기존 파일에 추가
+  fileInput.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+
+    files.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          selectedFiles.push({
+            file: file,
+            dataUrl: event.target.result
+          });
+          renderImagePreviews();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  });
+
+  // 폼 제출 시 삭제된 기존 이미지 정보 추가
+  document.querySelector('form').addEventListener('submit', function(e) {
+    // 삭제된 기존 이미지 URL을 hidden input으로 추가
+    const deletedImages = existingImages.filter(img => !keepExistingImages.includes(img));
+    deletedImages.forEach(imgUrl => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'deleteImages';
+      input.value = imgUrl;
+      this.appendChild(input);
+    });
   });
 </script>
 
