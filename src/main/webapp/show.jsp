@@ -72,13 +72,15 @@
     final int id;
     final int userId;
     final String userEmail;
+    final String userNickname;
     final String content;
     final String createdAt;
 
-    Comment(int id, int userId, String userEmail, String content, String createdAt) {
+    Comment(int id, int userId, String userEmail, String userNickname, String content, String createdAt) {
       this.id = id;
       this.userId = userId;
       this.userEmail = userEmail;
+      this.userNickname = userNickname;
       this.content = content;
       this.createdAt = createdAt;
     }
@@ -145,7 +147,7 @@
   List<Comment> comments = new ArrayList<>();
   try {
     String commentSql =
-      "SELECT c.id, c.user_id, u.email, c.content, c.created_at " +
+      "SELECT c.id, c.user_id, u.email, u.nickname, c.content, c.created_at " +
       "FROM sell_post_comment c " +
       "LEFT JOIN user u ON c.user_id = u.id " +
       "WHERE c.post_id = ? " +
@@ -158,6 +160,7 @@
           rs.getInt("id"),
           rs.getInt("user_id"),
           rs.getString("email"),
+          rs.getString("nickname"),
           rs.getString("content"),
           rs.getString("created_at")
         ));
@@ -698,7 +701,7 @@
       <div id="comment-<%= comment.id %>" class="comment-item <%= isAuthor ? "author" : "" %>">
         <div class="comment-header">
           <div class="comment-author <%= isAuthor ? "is-seller" : "" %>">
-            <%= comment.userEmail %>
+            <%= comment.userNickname %> (<%= comment.userEmail %>)
             <% if (isAuthor) { %>
             <span class="seller-badge">판매자</span>
             <% } %>
