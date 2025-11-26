@@ -17,29 +17,46 @@
   // 세션에서 현재 사용자 ID 가져오기
   Integer currentUserId = (Integer) session.getAttribute("userId");
 
-  // 댓글 작성 처리 (로그인 필요)
+  // 댓글 작성 및 삭제 처리 (로그인 필요)
   String commentAction = request.getParameter("commentAction");
-  if ("submit".equals(commentAction) && currentUserId != null) {
-    String commentContent = request.getParameter("content");
-    if (commentContent != null && !commentContent.trim().isEmpty()) {
-      try {
-        String insertCommentSql = "INSERT INTO sell_post_comment (post_id, user_id, content) VALUES (?, ?, ?)";
-        Db.execute(insertCommentSql, postId, currentUserId, commentContent.trim());
+  if (currentUserId != null) {
+    if ("submit".equals(commentAction)) {
+      String commentContent = request.getParameter("content");
+      if (commentContent != null && !commentContent.trim().isEmpty()) {
+        try {
+          String insertCommentSql = "INSERT INTO sell_post_comment (post_id, user_id, content) VALUES (?, ?, ?)";
+          Db.execute(insertCommentSql, postId, currentUserId, commentContent.trim());
 
-        // 방금 작성한 댓글의 ID 가져오기
-        String getLastCommentIdSql = "SELECT LAST_INSERT_ID() as id";
-        int lastCommentId = Db.query(getLastCommentIdSql, (ResultSet rs) -> {
-          if (rs.next()) {
-            return rs.getInt("id");
-          }
-          return -1;
-        });
+          // 방금 작성한 댓글의 ID 가져오기
+          String getLastCommentIdSql = "SELECT LAST_INSERT_ID() as id";
+          int lastCommentId = Db.query(getLastCommentIdSql, (ResultSet rs) -> {
+            if (rs.next()) {
+              return rs.getInt("id");
+            }
+            return -1;
+          });
 
-        // 댓글 작성 후 해당 댓글로 스크롤되도록 앵커 추가
-        response.sendRedirect("show.jsp?id=" + postId + "#comment-" + lastCommentId);
-        return;
-      } catch (Exception e) {
-        e.printStackTrace();
+          // 댓글 작성 후 해당 댓글로 스크롤되도록 앵커 추가
+          response.sendRedirect("show.jsp?id=" + postId + "#comment-" + lastCommentId);
+          return;
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    } else if ("delete".equals(commentAction)) {
+      String commentIdParam = request.getParameter("commentId");
+      if (commentIdParam != null) {
+        try {
+          int commentId = Integer.parseInt(commentIdParam);
+          // 본인 댓글인지 확인 후 삭제 (user_id 조건 추가)
+          String deleteCommentSql = "DELETE FROM sell_post_comment WHERE id = ? AND user_id = ?";
+          Db.execute(deleteCommentSql, commentId, currentUserId);
+          
+          response.sendRedirect("show.jsp?id=" + postId + "#comments-section");
+          return;
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
     }
   }
@@ -189,398 +206,7 @@
   <title><%= post.title %> – 소리집 sorizip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="css/search.css" />
-  <style>
-    .post-detail {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-
-    .post-header {
-      margin-bottom: 24px;
-      border-bottom: 2px solid #f0f0f0;
-      padding-bottom: 20px;
-    }
-
-    .post-title {
-      font-size: 2em;
-      font-weight: bold;
-      margin-bottom: 12px;
-      color: #333;
-    }
-
-    .post-meta {
-      display: flex;
-      gap: 16px;
-      color: #666;
-      font-size: 0.9em;
-    }
-
-    .post-meta span {
-      display: flex;
-      align-items: center;
-    }
-
-    .post-body {
-      margin-bottom: 32px;
-    }
-
-    .post-section {
-      margin-bottom: 24px;
-    }
-
-    .post-section-title {
-      font-size: 1.2em;
-      font-weight: bold;
-      margin-bottom: 12px;
-      color: #444;
-    }
-
-    .post-price {
-      font-size: 2em;
-      font-weight: bold;
-      color: #FF6B35;
-      margin-bottom: 16px;
-    }
-
-    .post-description {
-      line-height: 1.8;
-      color: #555;
-      white-space: pre-wrap;
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-    }
-
-    .post-categories {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .category-badge {
-      background: #FF6B35;
-      color: white;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.9em;
-    }
-
-    .back-button {
-      display: inline-block;
-      margin-bottom: 20px;
-      color: #FF6B35;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .back-button:hover {
-      text-decoration: underline;
-    }
-
-    .contact-section {
-      background: #f0f8ff;
-      padding: 20px;
-      border-radius: 8px;
-      margin-top: 32px;
-    }
-
-    .contact-email {
-      font-size: 1.1em;
-      color: #333;
-      font-weight: 500;
-    }
-
-    .comments-section {
-      margin-top: 48px;
-      padding-top: 32px;
-      border-top: 2px solid #f0f0f0;
-    }
-
-    .comments-title {
-      font-size: 1.5em;
-      font-weight: bold;
-      margin-bottom: 24px;
-      color: #333;
-    }
-
-    .comment-form {
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 32px;
-    }
-
-    .comment-textarea {
-      width: 100%;
-      min-height: 100px;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 6px;
-      font-size: 1em;
-      resize: vertical;
-      font-family: inherit;
-      box-sizing: border-box;
-    }
-
-    .comment-textarea:focus {
-      outline: none;
-      border-color: #FF6B35;
-    }
-
-    .comment-submit {
-      margin-top: 12px;
-      padding: 10px 24px;
-      background: #FF6B35;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 1em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .comment-submit:hover {
-      background: #e55a2a;
-      transform: translateY(-1px);
-    }
-
-    .comments-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .comment-item {
-      background: white;
-      padding: 16px;
-      border-radius: 8px;
-      border: 1px solid #e0e0e0;
-    }
-
-    .comment-item.author {
-      background: #fff8f5;
-      border: 2px solid #FF6B35;
-    }
-
-    .comment-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .comment-author {
-      font-weight: 600;
-      color: #333;
-    }
-
-    .comment-author.is-seller {
-      color: #FF6B35;
-    }
-
-    .comment-author .seller-badge {
-      background: #FF6B35;
-      color: white;
-      font-size: 0.75em;
-      padding: 2px 8px;
-      border-radius: 12px;
-      margin-left: 8px;
-    }
-
-    .comment-date {
-      color: #999;
-      font-size: 0.9em;
-    }
-
-    .comment-content {
-      color: #555;
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-
-    .no-comments {
-      text-align: center;
-      color: #999;
-      padding: 40px 20px;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-
-    .comment-item.highlight {
-      animation: highlightFade 2s ease-in-out;
-    }
-
-    @keyframes highlightFade {
-      0% {
-        background-color: #fff3cd;
-        transform: scale(1.02);
-      }
-      100% {
-        background-color: inherit;
-        transform: scale(1);
-      }
-    }
-
-    .comment-item.author.highlight {
-      animation: highlightFadeAuthor 2s ease-in-out;
-    }
-
-    @keyframes highlightFadeAuthor {
-      0% {
-        background-color: #ffe8d9;
-        transform: scale(1.02);
-      }
-      100% {
-        background-color: #fff8f5;
-        transform: scale(1);
-      }
-    }
-
-    /* 이미지 슬라이더 스타일 */
-    .image-slider {
-      position: relative;
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto 32px;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #f0f0f0;
-    }
-
-    .slider-container {
-      position: relative;
-      width: 100%;
-      padding-top: 75%; /* 4:3 aspect ratio */
-    }
-
-    .slider-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: #000;
-      display: none;
-    }
-
-    .slider-image.active {
-      display: block;
-    }
-
-    .slider-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      border: none;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      z-index: 10;
-    }
-
-    .slider-btn:hover {
-      background: rgba(0, 0, 0, 0.7);
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    .slider-btn.prev {
-      left: 16px;
-    }
-
-    .slider-btn.next {
-      right: 16px;
-    }
-
-    .slider-dots {
-      position: absolute;
-      bottom: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-      z-index: 10;
-    }
-
-    .slider-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.5);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .slider-dot.active {
-      background: white;
-      width: 24px;
-      border-radius: 5px;
-    }
-
-    .slider-counter {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 16px;
-      font-size: 0.9em;
-      z-index: 10;
-    }
-
-    .no-images {
-      text-align: center;
-      padding: 80px 20px;
-      color: #999;
-      font-size: 1.1em;
-    }
-
-    /* 수정/삭제 버튼 스타일 */
-    .edit-btn, .delete-btn {
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      border: 1px solid;
-      background: white;
-    }
-
-    .edit-btn {
-      color: #FF6B35;
-      border-color: #FF6B35;
-      display: inline-block;
-    }
-
-    .edit-btn:hover {
-      background: #FF6B35;
-      color: white;
-    }
-
-    .delete-btn {
-      color: #666;
-      border-color: #ddd;
-    }
-
-    .delete-btn:hover {
-      background: #666;
-      color: white;
-      border-color: #666;
-    }
-  </style>
+  <link rel="stylesheet" href="css/show.css" />
 </head>
 <body>
 
@@ -670,7 +296,7 @@
   </div>
 
   <!-- 댓글 섹션 -->
-  <div class="comments-section">
+  <div class="comments-section" id="comments-section">
     <h2 class="comments-title">댓글 (<%= comments.size() %>)</h2>
 
     <!-- 댓글 작성 폼 -->
@@ -697,6 +323,7 @@
     <div class="comments-list">
       <% for (Comment comment : comments) {
          boolean isAuthor = comment.userId == post.authorId;
+         boolean isMyComment = currentUserId != null && currentUserId == comment.userId;
       %>
       <div id="comment-<%= comment.id %>" class="comment-item <%= isAuthor ? "author" : "" %>">
         <div class="comment-header">
@@ -706,7 +333,17 @@
             <span class="seller-badge">판매자</span>
             <% } %>
           </div>
-          <div class="comment-date"><%= comment.createdAt %></div>
+          <div class="comment-date">
+            <%= comment.createdAt %>
+            <% if (isMyComment) { %>
+            <form action="show.jsp" method="post" style="display: inline; margin-left: 8px;">
+              <input type="hidden" name="id" value="<%= postId %>">
+              <input type="hidden" name="commentAction" value="delete">
+              <input type="hidden" name="commentId" value="<%= comment.id %>">
+              <button type="submit" class="comment-delete-btn" onclick="return confirm('댓글을 삭제하시겠습니까?')">삭제</button>
+            </form>
+            <% } %>
+          </div>
         </div>
         <div class="comment-content"><%= comment.content %></div>
       </div>
