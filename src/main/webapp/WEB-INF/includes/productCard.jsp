@@ -1,4 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%!
+  // 가격을 만원 단위로 포맷팅하는 함수
+  String formatPrice(int price) {
+    double manwon = price / 10000.0;
+    if (manwon == (int) manwon) {
+      return (int) manwon + "만원";
+    } else {
+      return String.format("%.1f만원", manwon);
+    }
+  }
+%>
 <%
   // 파라미터로 받을 값들
   int productId = (Integer) request.getAttribute("productId");
@@ -16,9 +27,9 @@
   if (productCity == null) productCity = "";
   if (productCondition == null) productCondition = "";
   if (productImageUrl == null) productImageUrl = "";
-  
+
   // 가격 포맷팅
-  String formattedPrice = String.format("%,d원", productPrice);
+  String formattedPrice = formatPrice(productPrice);
   
   // 상태 한글 변환
   String conditionText = "";
@@ -32,6 +43,8 @@
   
   // 카테고리 분리 (콤마로 구분된 경우)
   String[] categoryArray = productCategories != null ? productCategories.split(",\\s*") : new String[0];
+
+  
 %>
 <a class="product-card" href="show.jsp?id=<%= productId %>" data-category="<%= productCategories %>" data-title="<%= productTitle %>">
   <div class="product-thumb" style="<%= !productImageUrl.isEmpty() ? "background-image: url('" + productImageUrl + "'); background-size: cover; background-position: center;" : "" %>"></div>
