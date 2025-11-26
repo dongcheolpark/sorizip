@@ -14,12 +14,12 @@
 
   int postId = Integer.parseInt(idParam);
 
-  // 임시로 user id 1번으로 로그인되어있다고 가정
-  int currentUserId = 1;
+  // 세션에서 현재 사용자 ID 가져오기
+  Integer currentUserId = (Integer) session.getAttribute("userId");
 
-  // 댓글 작성 처리
+  // 댓글 작성 처리 (로그인 필요)
   String commentAction = request.getParameter("commentAction");
-  if ("submit".equals(commentAction)) {
+  if ("submit".equals(commentAction) && currentUserId != null) {
     String commentContent = request.getParameter("content");
     if (commentContent != null && !commentContent.trim().isEmpty()) {
       try {
@@ -542,6 +542,41 @@
       color: #999;
       font-size: 1.1em;
     }
+
+    /* 수정/삭제 버튼 스타일 */
+    .edit-btn, .delete-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      border: 1px solid;
+      background: white;
+    }
+
+    .edit-btn {
+      color: #FF6B35;
+      border-color: #FF6B35;
+      display: inline-block;
+    }
+
+    .edit-btn:hover {
+      background: #FF6B35;
+      color: white;
+    }
+
+    .delete-btn {
+      color: #666;
+      border-color: #ddd;
+    }
+
+    .delete-btn:hover {
+      background: #666;
+      color: white;
+      border-color: #666;
+    }
   </style>
 </head>
 <body>
@@ -552,11 +587,22 @@
   <a href="search.jsp" class="back-button">← 목록으로 돌아가기</a>
 
   <div class="post-header">
-    <h1 class="post-title"><%= post.title %></h1>
-    <div class="post-meta">
-      <span>📅 <%= post.createdAt %></span>
-      <% if (post.categories != null && !post.categories.isEmpty()) { %>
-      <span>🎵 <%= post.categories %></span>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div style="flex: 1;">
+        <h1 class="post-title"><%= post.title %></h1>
+        <div class="post-meta">
+          <span>📅 <%= post.createdAt %></span>
+          <% if (post.categories != null && !post.categories.isEmpty()) { %>
+          <span>🎵 <%= post.categories %></span>
+          <% } %>
+        </div>
+      </div>
+      
+      <% if (currentUserId != null && currentUserId == post.authorId) { %>
+      <div style="display: flex; gap: 8px;">
+        <a href="edit.jsp?id=<%= post.id %>" class="edit-btn">수정</a>
+        <button onclick="confirmDelete()" class="delete-btn">삭제</button>
+      </div>
       <% } %>
     </div>
   </div>
@@ -741,6 +787,24 @@
       }
     }
   });
+
+  // 게시글 삭제 확인
+  function confirmDelete() {
+    if (confirm('정말 이 게시글을 삭제하시겠습니까?\n삭제된 게시글은 복구할 수 없습니다.')) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'deletePost';
+      
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'id';
+      input.value = '<%= post.id %>';
+      
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    }
+  }
 </script>
 
 </body>

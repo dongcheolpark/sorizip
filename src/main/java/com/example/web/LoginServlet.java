@@ -39,7 +39,11 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = req.getSession(true);
         session.setAttribute("userId", foundId); // 내부 ID (INT)
         session.setAttribute("userUId", userIdInput); // 로그인 ID (VARCHAR)
-        resp.sendRedirect("index.jsp");
+
+        // 이전 페이지로 리다이렉트 (없으면 index.jsp)
+        String returnUrl = (String) session.getAttribute("returnUrl");
+        session.removeAttribute("returnUrl"); // 사용 후 제거
+        resp.sendRedirect(returnUrl != null ? returnUrl : "index.jsp");
       } else {
         req.setAttribute("error", "로그인에 실패했습니다.\n 아이디/비밀번호를 확인하세요.");
         req.getRequestDispatcher("login.jsp").forward(req, resp);

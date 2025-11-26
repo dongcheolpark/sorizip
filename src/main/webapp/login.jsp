@@ -1,4 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+  // returnUrl 파라미터를 세션에 저장 (있는 경우)
+  String returnUrl = request.getParameter("returnUrl");
+  if (returnUrl != null && !returnUrl.trim().isEmpty()) {
+    session.setAttribute("returnUrl", returnUrl);
+  }
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -90,7 +97,6 @@
 <section class="auth-wrapper">
   <form class="auth-card" method="post" action="login">
     <h1 class="auth-title">로그인</h1>
-    <p class="auth-sub">매물을 등록하려면 먼저 로그인해주세요.</p>
 
     <% 
        String signup = request.getParameter("signup");

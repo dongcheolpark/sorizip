@@ -24,11 +24,6 @@ body {
   border-color: #ff8a00;
 }
 
-.btn.ghost {
-  border-color: #ccc;
-  color: #333;
-}
-
 /* 히어로 섹션 (이미지 없이 배경색만 사용) */
 .hero {
   padding: 40px 20px;
@@ -47,14 +42,6 @@ body {
 
 .hero-text h1 {
   margin: 0 0 8px;
-}
-
-/* CTA 버튼 행 */
-.cta-row {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 10px;
 }
 
 /* 공통 섹션 */
@@ -78,6 +65,7 @@ body {
   color: #ff8a00;
   text-decoration: none;
   font-weight: 500;
+  font-size: 1.1rem;
   margin-left: 12px;
   transition: color 0.2s;
 }
@@ -108,121 +96,10 @@ body {
   margin: 0 0 6px;
 }
 
-.card.product {
-  padding: 0;
-  overflow: hidden;
-  display: block;
-}
-
-.card .thumb {
-  height: 160px;
-  background: #f5f5f5;
-}
-
-.card .meta {
-  padding: 12px;
-}
-
-/* 상품 카드 (새 디자인) */
-.productCard {
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #fff;
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  transition: all 0.2s;
-}
-
-.productCard:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-}
-
-.product-thumb {
-  width: 100%;
-  height: 200px;
-  background: #f5f5f5;
-}
-
-.product-info {
-  padding: 16px;
-}
-
-.product-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0 0 6px;
-  color: #222;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.product-author {
-  font-size: 0.9rem;
-  color: #999;
-  margin: 0 0 12px;
-}
-
-.product-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-top: 12px;
-}
-
-.product-price {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #222;
-}
-
-.product-tags {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.product-tag {
-  padding: 3px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  color: #666;
-  background: #f8f8f8;
-}
-
-.product-location {
-  font-size: 0.85rem;
-  color: #999;
-}
-
-/* 행 레이아웃 */
-.row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
 /* 텍스트 스타일 */
 .muted {
   color: #888;
   font-size: 0.9rem;
-}
-
-.price {
-  font-weight: 700;
-}
-
-.tag {
-  padding: 2px 8px;
-  border: 1px solid #ddd;
-  border-radius: 999px;
-  font-size: 0.8rem;
 }
 
 /* 카테고리 칩 */
@@ -279,14 +156,6 @@ body {
   border-color: #ff8a00;
   color: #ff8a00;
   transform: translateX(2px);
-}
-
-/* CTA 섹션 */
-.cta {
-  text-align: center;
-  background: #fff7ee;
-  border: 1px solid #ffe1c2;
-  border-radius: 16px;
 }
 
 /* 푸터 */

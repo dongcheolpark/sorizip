@@ -6,59 +6,87 @@
 <%
   request.setCharacterEncoding("UTF-8");
 
-  // 세션에 저장된 사용자 ID를 사용 (로그인 필요)
+  String idParam = request.getParameter("id");
+  if (idParam == null || idParam.isEmpty()) {
+    response.sendRedirect("search.jsp");
+    return;
+  }
+
+  int postId = Integer.parseInt(idParam);
+
+  // 세션에서 현재 사용자 ID 가져오기 (로그인 필요)
   Integer currentUserId = (Integer) session.getAttribute("userId");
   if (currentUserId == null) {
-    session.setAttribute("returnUrl", "new.jsp");
+    session.setAttribute("returnUrl", "edit.jsp?id=" + postId);
     response.sendRedirect("login.jsp");
     return;
   }
 
-  // 폼 제출 처리
-  String action = request.getParameter("action");
-  if ("submit".equals(action)) {
-    String title = request.getParameter("title");
-    String description = request.getParameter("description");
-    String priceStr = request.getParameter("price");
-    String[] categoryIds = request.getParameterValues("categories");
+  // DB에서 게시글 상세 정보 가져오기
+  class PostDetail {
+    final int id;
+    final String title;
+    final String description;
+    final int price;
+    final int authorId;
+    final List<Integer> categoryIds;
 
-    if (title != null && !title.trim().isEmpty() && priceStr != null && !priceStr.trim().isEmpty()) {
-      try {
-        int price = Integer.parseInt(priceStr);
-
-        // sell_post 테이블에 insert
-        String insertPostSql = "INSERT INTO sell_post (title, description, price, author_id) VALUES (?, ?, ?, ?)";
-        Db.execute(insertPostSql, title, description, price, currentUserId);
-
-        // 방금 insert한 id 가져오기
-        String getIdSql = "SELECT LAST_INSERT_ID() as id";
-        int postId = Db.query(getIdSql, (ResultSet rs) -> {
-          if (rs.next()) {
-            return rs.getInt("id");
-          }
-          return -1;
-        });
-
-        // 카테고리 연결
-        if (categoryIds != null && categoryIds.length > 0 && postId > 0) {
-          String insertCategorySql = "INSERT INTO sell_post_category (sell_post_id, category_id) VALUES (?, ?)";
-          for (String categoryId : categoryIds) {
-            Db.execute(insertCategorySql, postId, Integer.parseInt(categoryId));
-          }
-        }
-
-        // 작성 완료 후 상세 페이지로 리다이렉트
-        if (postId > 0) {
-          response.sendRedirect("show.jsp?id=" + postId);
-          return;
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+    PostDetail(int id, String title, String description, int price, int authorId, List<Integer> categoryIds) {
+      this.id = id;
+      this.title = title;
+      this.description = description;
+      this.price = price;
+      this.authorId = authorId;
+      this.categoryIds = categoryIds;
     }
   }
 
-  // DB에서 카테고리 목록 가져오기
+  PostDetail post = null;
+  try {
+    String sql =
+      "SELECT sp.id, sp.title, sp.description, sp.price, sp.author_id " +
+      "FROM sell_post sp " +
+      "WHERE sp.id = ?";
+
+    post = Db.query(sql, (ResultSet rs) -> {
+      if (rs.next()) {
+        return new PostDetail(
+          rs.getInt("id"),
+          rs.getString("title"),
+          rs.getString("description"),
+          rs.getInt("price"),
+          rs.getInt("author_id"),
+          new ArrayList<>()
+        );
+      }
+      return null;
+    }, postId);
+  } catch (Exception e) {
+    e.printStackTrace();
+  }
+
+  // 게시글이 없거나 작성자가 아니면 접근 거부
+  if (post == null || post.authorId != currentUserId) {
+    response.sendRedirect("show.jsp?id=" + postId);
+    return;
+  }
+
+  // 게시글의 카테고리 가져오기
+  try {
+    String categorySql = "SELECT category_id FROM sell_post_category WHERE sell_post_id = ?";
+    List<Integer> categoryIds = Db.query(categorySql, (ResultSet rs) -> {
+      List<Integer> result = new ArrayList<>();
+      while (rs.next()) {
+        result.add(rs.getInt("category_id"));
+      }
+      return result;
+    }, postId);
+    post.categoryIds.addAll(categoryIds);
+  } catch (Exception e) {
+    e.printStackTrace();
+  }
+
+  // DB에서 전체 카테고리 목록 가져오기
   class Category {
     final int id;
     final String name;
@@ -86,7 +114,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>매물 등록 – 소리집 sorizip</title>
+  <title>매물 수정 – 소리집 sorizip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="css/search.css" />
   <style>
@@ -238,14 +266,14 @@
 <%@ include file="WEB-INF/includes/header.jsp" %>
 
 <div class="form-container">
-  <a href="search.jsp" class="back-link">← 목록으로 돌아가기</a>
+  <a href="show.jsp?id=<%= post.id %>" class="back-link">← 게시글로 돌아가기</a>
 
   <div class="form-header">
-    <h1 class="form-title">악기 매물 등록</h1>
+    <h1 class="form-title">악기 매물 수정</h1>
   </div>
 
-  <form method="post" action="post" enctype="multipart/form-data">
-    <input type="hidden" name="action" value="create" />
+  <form method="post" action="editPost">
+    <input type="hidden" name="id" value="<%= post.id %>" />
 
     <div class="form-group">
       <label class="form-label">
@@ -255,6 +283,7 @@
         type="text"
         name="title"
         class="form-input"
+        value="<%= post.title != null ? post.title : "" %>"
         placeholder="예) 야마하 업라이트 피아노 U1"
         required
       />
@@ -269,6 +298,7 @@
         type="number"
         name="price"
         class="form-input"
+        value="<%= post.price %>"
         placeholder="예) 1800000"
         min="0"
         step="1000"
@@ -282,13 +312,16 @@
         카테고리<span class="required">*</span>
       </label>
       <div class="checkbox-group">
-        <% for (Category category : categories) { %>
+        <% for (Category category : categories) { 
+           boolean isChecked = post.categoryIds.contains(category.id);
+        %>
         <div class="checkbox-item">
           <input
             type="checkbox"
             name="categories"
             id="cat_<%= category.id %>"
             value="<%= category.id %>"
+            <%= isChecked ? "checked" : "" %>
           />
           <label for="cat_<%= category.id %>"><%= category.name %></label>
         </div>
@@ -299,34 +332,19 @@
 
     <div class="form-group">
       <label class="form-label">
-        이미지 업로드
-      </label>
-      <input
-        type="file"
-        name="images"
-        class="form-input"
-        accept="image/*"
-        multiple
-      />
-      <div class="form-hint">여러 개의 이미지를 선택할 수 있습니다 (최대 10MB per file)</div>
-      <div id="imagePreviewContainer" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;"></div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">
         상세 설명
       </label>
       <textarea
         name="description"
         class="form-textarea"
         placeholder="악기의 상태, 구매 시기, 사용 기간 등을 자세히 작성해주세요"
-      ></textarea>
+      ><%= post.description != null ? post.description : "" %></textarea>
       <div class="form-hint">구매자가 알아야 할 정보를 상세히 작성해주세요</div>
     </div>
 
     <div class="form-actions">
-      <a href="search.jsp" class="btn btn-secondary">취소</a>
-      <button type="submit" class="btn btn-primary">등록하기</button>
+      <a href="show.jsp?id=<%= post.id %>" class="btn btn-secondary">취소</a>
+      <button type="submit" class="btn btn-primary">수정하기</button>
     </div>
   </form>
 </div>
@@ -346,33 +364,7 @@
       return false;
     }
   });
-
-  // 이미지 미리보기
-  document.querySelector('input[name="images"]').addEventListener('change', function(e) {
-    const previewContainer = document.getElementById('imagePreviewContainer');
-    previewContainer.innerHTML = '';
-
-    const files = e.target.files;
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          const img = document.createElement('img');
-          img.src = event.target.result;
-          img.style.width = '120px';
-          img.style.height = '120px';
-          img.style.objectFit = 'cover';
-          img.style.borderRadius = '8px';
-          img.style.border = '2px solid #ddd';
-          previewContainer.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  });
 </script>
 
 </body>
 </html>
-
