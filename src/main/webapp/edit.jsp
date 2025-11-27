@@ -409,8 +409,27 @@
   // 파일 선택 시 기존 파일에 추가
   fileInput.addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    let rejectedFiles = [];
+
+    // 먼저 거부된 파일 확인
+    files.forEach(file => {
+      if (file.size > maxFileSize) {
+        rejectedFiles.push(file.name);
+      }
+    });
+
+    // 거부된 파일이 있으면 즉시 알림
+    if (rejectedFiles.length > 0) {
+      alert('다음 파일은 10MB를 초과하여 업로드할 수 없습니다:\n' + rejectedFiles.join('\n'));
+    }
 
     files.forEach(file => {
+      // 파일 크기 체크
+      if (file.size > maxFileSize) {
+        return;
+      }
+
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = function(event) {
@@ -418,11 +437,15 @@
             file: file,
             dataUrl: event.target.result
           });
+          updateFileInput();
           renderImagePreviews();
         };
         reader.readAsDataURL(file);
       }
     });
+
+    // input 초기화 (같은 파일 재선택 가능하도록)
+    e.target.value = '';
   });
 
   // 폼 제출 시 삭제된 기존 이미지 정보 및 순서 정보 추가
