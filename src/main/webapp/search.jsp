@@ -55,74 +55,65 @@
 
   List<Post> posts = new ArrayList<>();
   try {
-    String sql;
+    StringBuilder sqlBuilder = new StringBuilder(
+      "SELECT sp.id, sp.title, sp.description, sp.price, u.nickname as author, " +
+      "       GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories, " +
+      "       (SELECT image_url FROM sell_post_image WHERE post_id = sp.id ORDER BY display_order LIMIT 1) as image_url " +
+      "FROM sell_post sp " +
+      "LEFT JOIN user u ON sp.author_id = u.id " +
+      "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
+      "LEFT JOIN category c ON spc.category_id = c.id "
+    );
+
+    List<Object> params = new ArrayList<>();
+    boolean hasWhere = false;
+
+    // 키워드 검색 조건
+    if (!keyword.isEmpty()) {
+      sqlBuilder.append("WHERE (sp.title LIKE ? OR sp.description LIKE ?) ");
+      params.add("%" + keyword + "%");
+      params.add("%" + keyword + "%");
+      hasWhere = true;
+    }
+
+    // 카테고리 필터 조건
     if (!selectedCategory.isEmpty()) {
-      // 카테고리 필터가 있을 때
-      sql =
-        "SELECT sp.id, sp.title, sp.description, sp.price, u.nickname as author, " +
-        "       GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories, " +
-        "       (SELECT image_url FROM sell_post_image WHERE post_id = sp.id ORDER BY display_order LIMIT 1) as image_url " +
-        "FROM sell_post sp " +
-        "LEFT JOIN user u ON sp.author_id = u.id " +
-        "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
-        "LEFT JOIN category c ON spc.category_id = c.id " +
-        "WHERE sp.id IN ( " +
+      if (hasWhere) {
+        sqlBuilder.append("AND ");
+      } else {
+        sqlBuilder.append("WHERE ");
+      }
+      sqlBuilder.append("sp.id IN ( " +
         "  SELECT DISTINCT sp2.id FROM sell_post sp2 " +
         "  JOIN sell_post_category spc2 ON sp2.id = spc2.sell_post_id " +
         "  JOIN category c2 ON spc2.category_id = c2.id " +
         "  WHERE c2.name = ? " +
-        ") " +
-        "GROUP BY sp.id, sp.title, sp.description, sp.price, u.nickname " +
-        "ORDER BY sp.created_at DESC";
-
-      posts = Db.query(sql, (ResultSet rs) -> {
-        List<Post> result = new ArrayList<>();
-        while (rs.next()) {
-          result.add(new Post(
-            rs.getInt("id"),
-            rs.getString("title"),
-            rs.getString("description"),
-            rs.getInt("price"),
-            rs.getString("author"),
-            rs.getString("categories"),
-            null, // city - 컬럼 없음
-            null, // condition - 컬럼 없음
-            rs.getString("image_url")
-          ));
-        }
-        return result;
-      }, selectedCategory);
-    } else {
-      // 전체 조회
-      sql =
-        "SELECT sp.id, sp.title, sp.description, sp.price, u.nickname as author, " +
-        "       GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories, " +
-        "       (SELECT image_url FROM sell_post_image WHERE post_id = sp.id ORDER BY display_order LIMIT 1) as image_url " +
-        "FROM sell_post sp " +
-        "LEFT JOIN user u ON sp.author_id = u.id " +
-        "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
-        "LEFT JOIN category c ON spc.category_id = c.id " +
-        "GROUP BY sp.id, sp.title, sp.description, sp.price, u.nickname " +
-        "ORDER BY sp.created_at DESC";
-
-      posts = Db.query(sql, (ResultSet rs) -> {
-        List<Post> result = new ArrayList<>();
-        while (rs.next()) {
-          result.add(new Post(
-            rs.getInt("id"),
-            rs.getString("title"),
-            rs.getString("description"),
-            rs.getInt("price"),
-            rs.getString("author"),
-            rs.getString("categories"),
-            null, // city - 컬럼 없음
-            null, // condition - 컬럼 없음
-            rs.getString("image_url")
-          ));
-        }
-        return result;
-      });
+        ") ");
+      params.add(selectedCategory);
     }
+
+    sqlBuilder.append("GROUP BY sp.id, sp.title, sp.description, sp.price, u.nickname " +
+                     "ORDER BY sp.created_at DESC");
+
+    String sql = sqlBuilder.toString();
+
+    posts = Db.query(sql, (ResultSet rs) -> {
+      List<Post> result = new ArrayList<>();
+      while (rs.next()) {
+        result.add(new Post(
+          rs.getInt("id"),
+          rs.getString("title"),
+          rs.getString("description"),
+          rs.getInt("price"),
+          rs.getString("author"),
+          rs.getString("categories"),
+          null, // city - 컬럼 없음
+          null, // condition - 컬럼 없음
+          rs.getString("image_url")
+        ));
+      }
+      return result;
+    }, params.toArray());
   } catch (Exception e) {
     e.printStackTrace();
   }
@@ -230,30 +221,6 @@
   (function () {
     const keywordInput = document.getElementById("searchInput");
     const categoryChips = document.querySelectorAll(".chip-filter");
-    const cards = document.querySelectorAll(".productCard");
-    const emptyMessage = document.getElementById("emptyMessage");
-
-    let currentCategory = "<%= selectedCategory %>";
-
-    function applyFilter() {
-      const q = (keywordInput.value || "").trim().toLowerCase();
-      let visibleCount = 0;
-
-      cards.forEach((card) => {
-        const title = (card.dataset.title || "").toLowerCase();
-        const category = card.dataset.category || "";
-
-        const text = title + " " + category;
-
-        // 키워드만 클라이언트 사이드에서 필터링 (카테고리는 서버에서 이미 필터링됨)
-        const matchKeyword = !q || text.includes(q);
-
-        card.style.display = matchKeyword ? "" : "none";
-        if (matchKeyword) visibleCount++;
-      });
-
-      emptyMessage.style.display = visibleCount === 0 ? "block" : "none";
-    }
 
     // 카테고리 칩 클릭 - 서버 사이드 필터링을 위해 페이지 리로드
     categoryChips.forEach((chip) => {
@@ -274,11 +241,6 @@
         window.location.href = url;
       });
     });
-
-    // 키워드 변경
-    keywordInput.addEventListener("input", applyFilter);
-
-    document.addEventListener("DOMContentLoaded", applyFilter);
   })();
 </script>
 
