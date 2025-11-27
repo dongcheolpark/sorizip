@@ -115,7 +115,7 @@
     String sql =
       "SELECT sp.id, sp.title, sp.description, sp.price, sp.author_id, u.email, " +
       "       GROUP_CONCAT(c.name SEPARATOR ', ') as categories, " +
-      "       sp.created_at " +
+      "       DATE_FORMAT(sp.created_at, '%Y-%m-%d %H:%i') as created_at " +
       "FROM sell_post sp " +
       "LEFT JOIN user u ON sp.author_id = u.id " +
       "LEFT JOIN sell_post_category spc ON sp.id = spc.sell_post_id " +
@@ -171,7 +171,7 @@
   List<Comment> comments = new ArrayList<>();
   try {
     String commentSql =
-      "SELECT c.id, c.user_id, u.email, u.nickname, c.content, c.created_at " +
+      "SELECT c.id, c.user_id, u.email, u.nickname, c.content, DATE_FORMAT(c.created_at, '%Y-%m-%d %H:%i') as created_at " +
       "FROM sell_post_comment c " +
       "LEFT JOIN user u ON c.user_id = u.id " +
       "WHERE c.post_id = ? " +

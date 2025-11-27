@@ -87,7 +87,7 @@
     }, currentUserId);
 
     // 2. 내 게시글 가져오기
-    String postSql = "SELECT id, title, price, created_at FROM sell_post WHERE author_id = ? ORDER BY created_at DESC";
+    String postSql = "SELECT id, title, price, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as created_at FROM sell_post WHERE author_id = ? ORDER BY created_at DESC";
     myPosts = Db.query(postSql, rs -> {
       List<MyPost> list = new ArrayList<>();
       while (rs.next()) {
@@ -103,7 +103,7 @@
 
     // 3. 내 댓글 가져오기
     String commentSql = 
-      "SELECT c.id, c.post_id, p.title, c.content, c.created_at " +
+      "SELECT c.id, c.post_id, p.title, c.content, DATE_FORMAT(c.created_at, '%Y-%m-%d %H:%i') as created_at " +
       "FROM sell_post_comment c " +
       "JOIN sell_post p ON c.post_id = p.id " +
       "WHERE c.user_id = ? " +
