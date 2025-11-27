@@ -189,9 +189,34 @@
 }
 
 /* 이미지 미리보기 컨테이너 및 래퍼 */
+#imagePreviewContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: flex-start;
+}
+
 .image-preview-wrapper {
   position: relative;
   display: inline-block;
+  cursor: grab;
+  transition: transform 0.2s, opacity 0.2s;
+  flex-shrink: 0;
+  margin-top: 12px;
+}
+
+.image-preview-wrapper:active {
+  cursor: grabbing;
+}
+
+.image-preview-wrapper.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.image-preview-wrapper.drag-over {
+  transform: scale(1.05);
 }
 
 .image-preview {
@@ -200,6 +225,31 @@
   object-fit: cover;
   border-radius: 8px;
   border: 2px solid #ddd;
+  pointer-events: none;
+  display: block;
+}
+
+.image-preview-wrapper:first-child .image-preview {
+  border-color: #ff6b35;
+  border-width: 3px;
+}
+
+.representative-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.4);
+  letter-spacing: 0.3px;
 }
 
 /* 이미지 삭제 버튼 */
@@ -218,6 +268,7 @@
   line-height: 1;
   padding: 0;
   transition: background 0.2s;
+  z-index: 3;
 }
 
 .image-remove-btn:hover {

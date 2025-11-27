@@ -215,7 +215,11 @@
         multiple
       />
       <div class="form-hint">여러 개의 이미지를 선택할 수 있습니다 (최대 10MB per file)</div>
-      <div id="imagePreviewContainer" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;"></div>
+      <div id="imagePreviewContainer"></div>
+      <!-- 삭제할 이미지 URL 목록 (hidden) -->
+      <input type="hidden" name="deleteImages" id="deleteImagesInput" value="" />
+      <!-- 이미지 순서 정보 (hidden) -->
+      <input type="hidden" name="imageOrder" id="imageOrderInput" value="" />
     </div>
 
     <div class="form-group">
@@ -269,40 +273,35 @@
     const previewContainer = document.getElementById('imagePreviewContainer');
     previewContainer.innerHTML = '';
 
-    // 기존 이미지 표시
-    keepExistingImages.forEach((imageUrl, index) => {
+    const allImages = [...keepExistingImages, ...selectedFiles];
+
+    allImages.forEach((item, index) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'image-preview-wrapper';
+      wrapper.draggable = true;
+      wrapper.dataset.index = index;
+
+      // 대표 사진 뱃지 (첫 번째 이미지)
+      if (index === 0) {
+        const badge = document.createElement('div');
+        badge.className = 'representative-badge';
+        badge.textContent = '대표 사진';
+        wrapper.appendChild(badge);
+      }
 
       const img = document.createElement('img');
-      img.src = imageUrl;
-      img.className = 'image-preview';
-      img.onerror = function() {
-        img.style.border = '2px solid #f44336';
-        img.alt = '이미지 로드 실패';
-      };
-
-      const removeBtn = document.createElement('button');
-      removeBtn.innerHTML = '×';
-      removeBtn.type = 'button';
-      removeBtn.className = 'image-remove-btn';
-      removeBtn.onclick = function() {
-        keepExistingImages.splice(index, 1);
-        renderImagePreviews();
-      };
-
-      wrapper.appendChild(img);
-      wrapper.appendChild(removeBtn);
-      previewContainer.appendChild(wrapper);
-    });
-
-    // 새 파일 표시
-    selectedFiles.forEach((file, index) => {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'image-preview-wrapper';
-
-      const img = document.createElement('img');
-      img.src = file.dataUrl;
+      const isExisting = index < keepExistingImages.length;
+      
+      if (isExisting) {
+        img.src = item;
+        img.onerror = function() {
+          img.style.border = '2px solid #f44336';
+          img.alt = '이미지 로드 실패';
+        };
+      } else {
+        img.src = item.dataUrl;
+      }
+      
       img.className = 'image-preview';
 
       const removeBtn = document.createElement('button');
@@ -310,15 +309,91 @@
       removeBtn.type = 'button';
       removeBtn.className = 'image-remove-btn';
       removeBtn.onclick = function() {
-        selectedFiles.splice(index, 1);
-        updateFileInput();
+        if (isExisting) {
+          keepExistingImages.splice(index, 1);
+        } else {
+          selectedFiles.splice(index - keepExistingImages.length, 1);
+          updateFileInput();
+        }
         renderImagePreviews();
       };
+
+      // 드래그 이벤트
+      wrapper.addEventListener('dragstart', handleDragStart);
+      wrapper.addEventListener('dragend', handleDragEnd);
+      wrapper.addEventListener('dragover', handleDragOver);
+      wrapper.addEventListener('drop', handleDrop);
+      wrapper.addEventListener('dragenter', handleDragEnter);
+      wrapper.addEventListener('dragleave', handleDragLeave);
 
       wrapper.appendChild(img);
       wrapper.appendChild(removeBtn);
       previewContainer.appendChild(wrapper);
     });
+  }
+
+  // 드래그 앤 드롭 관련 변수
+  let draggedIndex = null;
+
+  function handleDragStart(e) {
+    draggedIndex = parseInt(e.currentTarget.dataset.index);
+    e.currentTarget.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  }
+
+  function handleDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    document.querySelectorAll('.image-preview-wrapper').forEach(el => {
+      el.classList.remove('drag-over');
+    });
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+  }
+
+  function handleDragEnter(e) {
+    e.currentTarget.classList.add('drag-over');
+  }
+
+  function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const dropIndex = parseInt(e.currentTarget.dataset.index);
+
+    if (draggedIndex !== null && draggedIndex !== dropIndex) {
+      // 전체 이미지 배열 생성
+      const allImages = [...keepExistingImages, ...selectedFiles];
+      
+      // 배열에서 항목 이동
+      const draggedItem = allImages[draggedIndex];
+      allImages.splice(draggedIndex, 1);
+      allImages.splice(dropIndex, 0, draggedItem);
+
+      // keepExistingImages와 selectedFiles 재분배
+      keepExistingImages.length = 0;
+      selectedFiles.length = 0;
+
+      allImages.forEach(item => {
+        if (typeof item === 'string') {
+          keepExistingImages.push(item);
+        } else {
+          selectedFiles.push(item);
+        }
+      });
+
+      updateFileInput();
+      renderImagePreviews();
+    }
+
+    return false;
   }
 
   // FileInput 업데이트
@@ -350,7 +425,7 @@
     });
   });
 
-  // 폼 제출 시 삭제된 기존 이미지 정보 추가
+  // 폼 제출 시 삭제된 기존 이미지 정보 및 순서 정보 추가
   document.querySelector('form').addEventListener('submit', function(e) {
     // 삭제된 기존 이미지 URL을 hidden input으로 추가
     const deletedImages = existingImages.filter(img => !keepExistingImages.includes(img));
@@ -361,6 +436,28 @@
       input.value = imgUrl;
       this.appendChild(input);
     });
+
+    // 이미지 순서 정보를 JSON으로 저장
+    const allImages = [...keepExistingImages, ...selectedFiles];
+    let newFileCounter = 0;
+    const imageOrder = allImages.map((item, index) => {
+      if (typeof item === 'string') {
+        // 기존 이미지
+        return {
+          url: item,
+          order: index + 1
+        };
+      } else {
+        // 새 파일
+        const result = {
+          url: 'NEW_FILE_' + newFileCounter,
+          order: index + 1
+        };
+        newFileCounter++;
+        return result;
+      }
+    });
+    document.getElementById('imageOrderInput').value = JSON.stringify(imageOrder);
   });
 </script>
 

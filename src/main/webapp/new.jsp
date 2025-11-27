@@ -167,7 +167,7 @@
         multiple
       />
       <div class="form-hint">여러 개의 이미지를 선택할 수 있습니다 (최대 10MB per file)</div>
-      <div id="imagePreviewContainer" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;"></div>
+      <div id="imagePreviewContainer"></div>
     </div>
 
     <div class="form-group">
@@ -217,6 +217,16 @@
     selectedFiles.forEach((file, index) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'image-preview-wrapper';
+      wrapper.draggable = true;
+      wrapper.dataset.index = index;
+
+      // 대표 사진 뱃지 (첫 번째 이미지)
+      if (index === 0) {
+        const badge = document.createElement('div');
+        badge.className = 'representative-badge';
+        badge.textContent = '대표 사진';
+        wrapper.appendChild(badge);
+      }
 
       const img = document.createElement('img');
       img.src = file.dataUrl;
@@ -232,10 +242,67 @@
         renderImagePreviews();
       };
 
+      // 드래그 이벤트
+      wrapper.addEventListener('dragstart', handleDragStart);
+      wrapper.addEventListener('dragend', handleDragEnd);
+      wrapper.addEventListener('dragover', handleDragOver);
+      wrapper.addEventListener('drop', handleDrop);
+      wrapper.addEventListener('dragenter', handleDragEnter);
+      wrapper.addEventListener('dragleave', handleDragLeave);
+
       wrapper.appendChild(img);
       wrapper.appendChild(removeBtn);
       previewContainer.appendChild(wrapper);
     });
+  }
+
+  // 드래그 앤 드롭 관련 변수
+  let draggedIndex = null;
+
+  function handleDragStart(e) {
+    draggedIndex = parseInt(e.currentTarget.dataset.index);
+    e.currentTarget.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  }
+
+  function handleDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    document.querySelectorAll('.image-preview-wrapper').forEach(el => {
+      el.classList.remove('drag-over');
+    });
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+  }
+
+  function handleDragEnter(e) {
+    e.currentTarget.classList.add('drag-over');
+  }
+
+  function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const dropIndex = parseInt(e.currentTarget.dataset.index);
+
+    if (draggedIndex !== null && draggedIndex !== dropIndex) {
+      // 배열에서 항목 이동
+      const draggedItem = selectedFiles[draggedIndex];
+      selectedFiles.splice(draggedIndex, 1);
+      selectedFiles.splice(dropIndex, 0, draggedItem);
+
+      updateFileInput();
+      renderImagePreviews();
+    }
+
+    return false;
   }
 
   // FileInput 업데이트
@@ -248,6 +315,7 @@
   // 파일 선택 시 기존 파일에 추가
   fileInput.addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
+    let filesProcessed = 0;
 
     files.forEach(file => {
       if (file.type.startsWith('image/')) {
@@ -257,9 +325,17 @@
             file: file,
             dataUrl: event.target.result
           });
-          renderImagePreviews();
+          filesProcessed++;
+          
+          // 모든 파일 처리 완료 후 input 업데이트
+          if (filesProcessed === files.length) {
+            updateFileInput();
+            renderImagePreviews();
+          }
         };
         reader.readAsDataURL(file);
+      } else {
+        filesProcessed++;
       }
     });
   });

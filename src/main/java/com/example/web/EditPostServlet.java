@@ -95,7 +95,44 @@ public class EditPostServlet extends HttpServlet {
         }
       }
 
-      // 5. 새 이미지 업로드 및 추가
+      // 5. 이미지 순서 정보 처리
+      String imageOrderJson = request.getParameter("imageOrder");
+      if (imageOrderJson != null && !imageOrderJson.trim().isEmpty()) {
+        // JSON 파싱 대신 간단하게 기존 이미지들의 순서를 업데이트
+        // 형식: [{"url":"https://...","order":1},{"url":"NEW_FILE_0","order":2},...]
+        try {
+          // 기존 이미지들의 순서만 업데이트
+          String updateOrderSql = "UPDATE sell_post_image SET display_order = ? WHERE post_id = ? AND image_url = ?";
+
+          // 간단한 JSON 파싱 (라이브러리 없이)
+          String[] entries = imageOrderJson.split("\\},\\{");
+          for (String entry : entries) {
+            entry = entry.replace("[{", "").replace("}]", "").replace("{", "").replace("}", "");
+            String[] pairs = entry.split(",");
+
+            String url = null;
+            int order = 0;
+
+            for (String pair : pairs) {
+              if (pair.contains("\"url\"")) {
+                url = pair.split(":")[1].replace("\"", "").trim();
+              } else if (pair.contains("\"order\"")) {
+                order = Integer.parseInt(pair.split(":")[1].trim());
+              }
+            }
+
+            // 기존 이미지인 경우에만 순서 업데이트 (NEW_FILE은 나중에 추가됨)
+            if (url != null && !url.startsWith("NEW_FILE")) {
+              Db.execute(updateOrderSql, order, postId, url);
+            }
+          }
+        } catch (Exception e) {
+          System.err.println("⚠️ 이미지 순서 업데이트 실패: " + e.getMessage());
+          // 순서 업데이트 실패해도 계속 진행
+        }
+      }
+
+      // 6. 새 이미지 업로드 및 추가
       Collection<Part> parts = request.getParts();
       List<String> newImageUrls = new ArrayList<>();
 
@@ -119,21 +156,41 @@ public class EditPostServlet extends HttpServlet {
         }
       }
 
-      // 6. 새 이미지가 있으면 DB에 추가
+      // 7. 새 이미지가 있으면 DB에 추가 (imageOrder에서 NEW_FILE의 순서 사용)
       if (!newImageUrls.isEmpty()) {
-        // 기존 이미지의 최대 display_order 가져오기
-        String maxOrderSql = "SELECT COALESCE(MAX(display_order), 0) as max_order FROM sell_post_image WHERE post_id = ?";
-        int maxOrder = Db.query(maxOrderSql, rs -> {
-          if (rs.next()) {
-            return rs.getInt("max_order");
-          }
-          return 0;
-        }, postId);
-
-        // 새 이미지 추가
         String insertImageSql = "INSERT INTO sell_post_image (post_id, image_url, display_order) VALUES (?, ?, ?)";
-        for (int i = 0; i < newImageUrls.size(); i++) {
-          Db.execute(insertImageSql, postId, newImageUrls.get(i), maxOrder + i + 1);
+
+        // imageOrderJson에서 NEW_FILE의 순서 찾기
+        int newFileIndex = 0;
+        for (String imageUrl : newImageUrls) {
+          int displayOrder = 999 + newFileIndex; // 기본값
+
+          if (imageOrderJson != null && !imageOrderJson.trim().isEmpty()) {
+            try {
+              String searchKey = "NEW_FILE_" + newFileIndex;
+              if (imageOrderJson.contains(searchKey)) {
+                // 해당 NEW_FILE의 order 찾기
+                String[] entries = imageOrderJson.split("\\},\\{");
+                for (String entry : entries) {
+                  if (entry.contains(searchKey)) {
+                    String[] pairs = entry.split(",");
+                    for (String pair : pairs) {
+                      if (pair.contains("\"order\"")) {
+                        displayOrder = Integer.parseInt(pair.split(":")[1].trim().replace("}", ""));
+                        break;
+                      }
+                    }
+                    break;
+                  }
+                }
+              }
+            } catch (Exception e) {
+              System.err.println("⚠️ NEW_FILE 순서 파싱 실패, 기본값 사용");
+            }
+          }
+
+          Db.execute(insertImageSql, postId, imageUrl, displayOrder);
+          newFileIndex++;
         }
       }
 

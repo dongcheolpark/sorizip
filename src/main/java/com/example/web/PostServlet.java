@@ -21,10 +21,9 @@ import java.util.List;
  * 게시글 및 이미지 업로드를 처리하는 서블릿
  */
 @WebServlet("/post")
-@MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
-    maxFileSize = 1024 * 1024 * 10,        // 10MB
-    maxRequestSize = 1024 * 1024 * 50      // 50MB
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+    maxFileSize = 1024 * 1024 * 10, // 10MB
+    maxRequestSize = 1024 * 1024 * 50 // 50MB
 )
 public class PostServlet extends HttpServlet {
 
@@ -110,15 +109,16 @@ public class PostServlet extends HttpServlet {
       }
 
       // 이미지 업로드 처리
-      Collection<Part> parts = req.getParts();
+      Collection<Part> allParts = req.getParts();
       List<String> imageUrls = new ArrayList<>();
 
       System.out.println("📷 이미지 업로드 처리 시작");
-      System.out.println("   총 파트 수: " + parts.size());
+      System.out.println("   총 파트 수: " + allParts.size());
 
       try {
-        for (Part part : parts) {
-          System.out.println("   파트: " + part.getName() + ", 크기: " + part.getSize() + " bytes, 타입: " + part.getContentType());
+        for (Part part : allParts) {
+          System.out
+              .println("   파트: " + part.getName() + ", 크기: " + part.getSize() + " bytes, 타입: " + part.getContentType());
           if ("images".equals(part.getName()) && part.getSize() > 0) {
             String contentType = part.getContentType();
             if (contentType != null && contentType.startsWith("image/")) {
@@ -127,13 +127,13 @@ public class PostServlet extends HttpServlet {
                 String imageUrl = ImageUploader.uploadImage(
                     part.getInputStream(),
                     fileName,
-                    contentType
-                );
+                    contentType);
                 imageUrls.add(imageUrl);
-                System.out.println("✅ 이미지 업로드 성공: " + fileName);
+                System.out.println("✅ 이미지 업로드 성공: " + fileName + " -> " + imageUrl);
               } catch (Exception imageError) {
                 System.err.println("⚠️ 이미지 업로드 실패: " + fileName);
                 System.err.println("   에러: " + imageError.getMessage());
+                imageError.printStackTrace();
                 // 이미지 업로드 실패해도 계속 진행
               }
             }
@@ -188,8 +188,7 @@ public class PostServlet extends HttpServlet {
             String imageUrl = ImageUploader.uploadImage(
                 part.getInputStream(),
                 fileName,
-                contentType
-            );
+                contentType);
             imageUrls.add(imageUrl);
           }
         }
@@ -216,7 +215,7 @@ public class PostServlet extends HttpServlet {
     String sql = "INSERT INTO sell_post (title, description, price, author_id) VALUES (?, ?, ?, ?)";
 
     try (Connection conn = Db.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
       ps.setString(1, title);
       ps.setString(2, description);
       ps.setInt(3, price);
@@ -240,7 +239,7 @@ public class PostServlet extends HttpServlet {
     String sql = "INSERT INTO sell_post_category (sell_post_id, category_id) VALUES (?, ?)";
 
     try (Connection conn = Db.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
+        PreparedStatement ps = conn.prepareStatement(sql)) {
       for (String categoryId : categoryIds) {
         ps.setInt(1, postId);
         ps.setInt(2, Integer.parseInt(categoryId));
@@ -260,7 +259,7 @@ public class PostServlet extends HttpServlet {
     int maxOrder = getMaxDisplayOrder(postId);
 
     try (Connection conn = Db.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
+        PreparedStatement ps = conn.prepareStatement(sql)) {
       for (int i = 0; i < imageUrls.size(); i++) {
         ps.setInt(1, postId);
         ps.setString(2, imageUrls.get(i));
@@ -300,4 +299,3 @@ public class PostServlet extends HttpServlet {
     return "unknown";
   }
 }
-
