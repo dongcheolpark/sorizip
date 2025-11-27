@@ -32,9 +32,6 @@ public class PostServlet extends HttpServlet {
       throws ServletException, IOException {
     req.setCharacterEncoding("UTF-8");
 
-    System.out.println("🔍 PostServlet 호출됨");
-    System.out.println("   Content-Type: " + req.getContentType());
-
     // multipart/form-data의 경우 getParts()를 먼저 호출해야 파라미터를 읽을 수 있음
     String action = null;
     try {
@@ -42,15 +39,12 @@ public class PostServlet extends HttpServlet {
       for (Part part : req.getParts()) {
         if ("action".equals(part.getName())) {
           action = new String(part.getInputStream().readAllBytes(), "UTF-8");
-          System.out.println("   action 파라미터 발견: " + action);
           break;
         }
       }
     } catch (Exception e) {
       System.err.println("❌ 파라미터 읽기 실패: " + e.getMessage());
     }
-
-    System.out.println("   action: " + action);
 
     if ("create".equals(action)) {
       handleCreatePost(req, resp);
@@ -67,27 +61,19 @@ public class PostServlet extends HttpServlet {
    */
   private void handleCreatePost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
-    System.out.println("📝 게시글 생성 요청 받음");
-
     String title = req.getParameter("title");
     String description = req.getParameter("description");
     String priceStr = req.getParameter("price");
     String[] categoryIds = req.getParameterValues("categories");
 
-    System.out.println("   제목: " + title);
-    System.out.println("   가격: " + priceStr);
-    System.out.println("   카테고리 개수: " + (categoryIds != null ? categoryIds.length : 0));
-
     // 세션에서 현재 사용자 ID 가져오기
     Integer currentUserId = (Integer) req.getSession().getAttribute("userId");
     if (currentUserId == null) {
-      System.err.println("❌ 로그인되지 않은 사용자");
       resp.sendRedirect("login.jsp");
       return;
     }
 
     if (title == null || title.trim().isEmpty() || priceStr == null || priceStr.trim().isEmpty()) {
-      System.err.println("❌ 필수 항목 누락");
       resp.sendRedirect("new.jsp?error=required");
       return;
     }
@@ -112,13 +98,8 @@ public class PostServlet extends HttpServlet {
       Collection<Part> allParts = req.getParts();
       List<String> imageUrls = new ArrayList<>();
 
-      System.out.println("📷 이미지 업로드 처리 시작");
-      System.out.println("   총 파트 수: " + allParts.size());
-
       try {
         for (Part part : allParts) {
-          System.out
-              .println("   파트: " + part.getName() + ", 크기: " + part.getSize() + " bytes, 타입: " + part.getContentType());
           if ("images".equals(part.getName()) && part.getSize() > 0) {
             String contentType = part.getContentType();
             if (contentType != null && contentType.startsWith("image/")) {
@@ -129,7 +110,6 @@ public class PostServlet extends HttpServlet {
                     fileName,
                     contentType);
                 imageUrls.add(imageUrl);
-                System.out.println("✅ 이미지 업로드 성공: " + fileName + " -> " + imageUrl);
               } catch (Exception imageError) {
                 System.err.println("⚠️ 이미지 업로드 실패: " + fileName);
                 System.err.println("   에러: " + imageError.getMessage());
@@ -143,9 +123,6 @@ public class PostServlet extends HttpServlet {
         // 이미지 URL을 DB에 저장
         if (!imageUrls.isEmpty()) {
           saveImageUrls(postId, imageUrls);
-          System.out.println("✅ " + imageUrls.size() + "개 이미지 정보 DB 저장 완료");
-        } else {
-          System.out.println("ℹ️ 업로드된 이미지 없음");
         }
       } catch (Exception e) {
         System.err.println("⚠️ 이미지 처리 중 오류 발생: " + e.getMessage());

@@ -97,38 +97,63 @@ public class EditPostServlet extends HttpServlet {
 
       // 5. 이미지 순서 정보 처리
       String imageOrderJson = request.getParameter("imageOrder");
+
       if (imageOrderJson != null && !imageOrderJson.trim().isEmpty()) {
-        // JSON 파싱 대신 간단하게 기존 이미지들의 순서를 업데이트
-        // 형식: [{"url":"https://...","order":1},{"url":"NEW_FILE_0","order":2},...]
         try {
-          // 기존 이미지들의 순서만 업데이트
           String updateOrderSql = "UPDATE sell_post_image SET display_order = ? WHERE post_id = ? AND image_url = ?";
 
-          // 간단한 JSON 파싱 (라이브러리 없이)
-          String[] entries = imageOrderJson.split("\\},\\{");
-          for (String entry : entries) {
-            entry = entry.replace("[{", "").replace("}]", "").replace("{", "").replace("}", "");
-            String[] pairs = entry.split(",");
+          // JSON 간단 파싱
+          imageOrderJson = imageOrderJson.trim();
+          if (imageOrderJson.startsWith("["))
+            imageOrderJson = imageOrderJson.substring(1);
+          if (imageOrderJson.endsWith("]"))
+            imageOrderJson = imageOrderJson.substring(0, imageOrderJson.length() - 1);
 
+          String[] entries = imageOrderJson.split("\\},\\{");
+
+          for (String entry : entries) {
+            entry = entry.trim();
+            if (entry.startsWith("{"))
+              entry = entry.substring(1);
+            if (entry.endsWith("}"))
+              entry = entry.substring(0, entry.length() - 1);
+
+            // "url":"https://...","order":1 형태에서 추출
             String url = null;
             int order = 0;
 
-            for (String pair : pairs) {
-              if (pair.contains("\"url\"")) {
-                url = pair.split(":")[1].replace("\"", "").trim();
-              } else if (pair.contains("\"order\"")) {
-                order = Integer.parseInt(pair.split(":")[1].trim());
+            // url 추출
+            int urlStart = entry.indexOf("\"url\":\"") + 7;
+            int urlEnd = entry.indexOf("\"", urlStart);
+            if (urlStart > 6 && urlEnd > urlStart) {
+              url = entry.substring(urlStart, urlEnd);
+            }
+
+            // order 추출
+            int orderStart = entry.indexOf("\"order\":") + 8;
+            if (orderStart > 7) {
+              String orderStr = entry.substring(orderStart).trim();
+              // 숫자만 추출
+              StringBuilder orderNum = new StringBuilder();
+              for (char c : orderStr.toCharArray()) {
+                if (Character.isDigit(c)) {
+                  orderNum.append(c);
+                } else {
+                  break;
+                }
+              }
+              if (orderNum.length() > 0) {
+                order = Integer.parseInt(orderNum.toString());
               }
             }
 
-            // 기존 이미지인 경우에만 순서 업데이트 (NEW_FILE은 나중에 추가됨)
             if (url != null && !url.startsWith("NEW_FILE")) {
               Db.execute(updateOrderSql, order, postId, url);
             }
           }
         } catch (Exception e) {
           System.err.println("⚠️ 이미지 순서 업데이트 실패: " + e.getMessage());
-          // 순서 업데이트 실패해도 계속 진행
+          e.printStackTrace();
         }
       }
 
