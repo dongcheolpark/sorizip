@@ -237,9 +237,8 @@
                   <span class="comment-content"><%= c.content %></span>
                 </div>
                 <div class="activity-meta">
-                  <span class="comment-post-title">On: <%= c.postTitle %></span>
-                  <span class="separator">•</span>
-                  <%= c.createdAt %>
+                  <div class="comment-post-title">On: <%= c.postTitle %></div>
+                  <div class="comment-date"><%= c.createdAt %></div>
                 </div>
               </a>
             </li>

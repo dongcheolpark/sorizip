@@ -184,11 +184,15 @@
 .comment-post-title {
   color: #666;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.separator {
-  margin: 0 6px;
-  color: #ddd;
+.comment-date {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #aaa;
 }
 
 .empty-state {
