@@ -79,8 +79,13 @@ public class PostServlet extends HttpServlet {
     System.out.println("   가격: " + priceStr);
     System.out.println("   카테고리 개수: " + (categoryIds != null ? categoryIds.length : 0));
 
-    // 임시로 user id 1번으로 로그인되어있다고 가정
-    int currentUserId = 1;
+    // 세션에서 현재 사용자 ID 가져오기
+    Integer currentUserId = (Integer) req.getSession().getAttribute("userId");
+    if (currentUserId == null) {
+      System.err.println("❌ 로그인되지 않은 사용자");
+      resp.sendRedirect("login.jsp");
+      return;
+    }
 
     if (title == null || title.trim().isEmpty() || priceStr == null || priceStr.trim().isEmpty()) {
       System.err.println("❌ 필수 항목 누락");
