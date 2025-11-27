@@ -71,7 +71,7 @@
 
   List<Category> categories = new ArrayList<>();
   try {
-    categories = Db.query("SELECT id, name FROM category ORDER BY name", (ResultSet rs) -> {
+    categories = Db.query("SELECT id, name FROM category", (ResultSet rs) -> {
       List<Category> result = new ArrayList<>();
       while (rs.next()) {
         result.add(new Category(rs.getInt("id"), rs.getString("name")));
