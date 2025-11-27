@@ -128,9 +128,14 @@
   }
 %>
 <%!
-  // 가격 포맷팅
+  // 가격을 만원 단위로 포맷팅하는 함수
   String formatPrice(int price) {
-    return String.format("%,d원", price);
+    double manwon = price / 10000.0;
+    if (manwon == (int) manwon) {
+      return (int) manwon + "만원";
+    } else {
+      return String.format("%.1f만원", manwon);
+    }
   }
 %>
 <!DOCTYPE html>
