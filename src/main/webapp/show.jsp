@@ -19,44 +19,51 @@
 
   // 댓글 작성 및 삭제 처리 (로그인 필요)
   String commentAction = request.getParameter("commentAction");
-  if (currentUserId != null) {
-    if ("submit".equals(commentAction)) {
-      String commentContent = request.getParameter("content");
-      if (commentContent != null && !commentContent.trim().isEmpty()) {
-        try {
-          String insertCommentSql = "INSERT INTO sell_post_comment (post_id, user_id, content) VALUES (?, ?, ?)";
-          Db.execute(insertCommentSql, postId, currentUserId, commentContent.trim());
+  if ("submit".equals(commentAction)) {
+    if (currentUserId == null) {
+%>
+<script>
+  alert('로그인을 해주세요');
+  location.href = 'login.jsp?returnUrl=' + encodeURIComponent('show.jsp?id=<%= postId %>');
+</script>
+<%
+      return;
+    }
+    String commentContent = request.getParameter("content");
+    if (commentContent != null && !commentContent.trim().isEmpty()) {
+      try {
+        String insertCommentSql = "INSERT INTO sell_post_comment (post_id, user_id, content) VALUES (?, ?, ?)";
+        Db.execute(insertCommentSql, postId, currentUserId, commentContent.trim());
 
-          // 방금 작성한 댓글의 ID 가져오기
-          String getLastCommentIdSql = "SELECT LAST_INSERT_ID() as id";
-          int lastCommentId = Db.query(getLastCommentIdSql, (ResultSet rs) -> {
-            if (rs.next()) {
-              return rs.getInt("id");
-            }
-            return -1;
-          });
+        // 방금 작성한 댓글의 ID 가져오기
+        String getLastCommentIdSql = "SELECT LAST_INSERT_ID() as id";
+        int lastCommentId = Db.query(getLastCommentIdSql, (ResultSet rs) -> {
+          if (rs.next()) {
+            return rs.getInt("id");
+          }
+          return -1;
+        });
 
-          // 댓글 작성 후 해당 댓글로 스크롤되도록 앵커 추가
-          response.sendRedirect("show.jsp?id=" + postId + "#comment-" + lastCommentId);
-          return;
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
+        // 댓글 작성 후 해당 댓글로 스크롤되도록 앵커 추가
+        response.sendRedirect("show.jsp?id=" + postId + "#comment-" + lastCommentId);
+        return;
+      } catch (Exception e) {
+        e.printStackTrace();
       }
-    } else if ("delete".equals(commentAction)) {
-      String commentIdParam = request.getParameter("commentId");
-      if (commentIdParam != null) {
-        try {
-          int commentId = Integer.parseInt(commentIdParam);
-          // 본인 댓글인지 확인 후 삭제 (user_id 조건 추가)
-          String deleteCommentSql = "DELETE FROM sell_post_comment WHERE id = ? AND user_id = ?";
-          Db.execute(deleteCommentSql, commentId, currentUserId);
-          
-          response.sendRedirect("show.jsp?id=" + postId + "#comments-section");
-          return;
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
+    }
+  } else if ("delete".equals(commentAction) && currentUserId != null) {
+    String commentIdParam = request.getParameter("commentId");
+    if (commentIdParam != null) {
+      try {
+        int commentId = Integer.parseInt(commentIdParam);
+        // 본인 댓글인지 확인 후 삭제 (user_id 조건 추가)
+        String deleteCommentSql = "DELETE FROM sell_post_comment WHERE id = ? AND user_id = ?";
+        Db.execute(deleteCommentSql, commentId, currentUserId);
+        
+        response.sendRedirect("show.jsp?id=" + postId + "#comments-section");
+        return;
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     }
   }
