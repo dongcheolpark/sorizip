@@ -20,6 +20,7 @@
   <div class="nav-right">
     <% if (isLoggedIn) { %>
       <span class="user-info"><%= userUId %>님</span>
+      <a href="mypage.jsp" class="btn-mypage">마이페이지</a>
       <a href="#" onclick="return confirmLogout();" class="btn-logout">로그아웃</a>
     <% } else { %>
       <a href="login.jsp?returnUrl=<%= java.net.URLEncoder.encode(currentUrl, "UTF-8") %>" class="btn-login">로그인</a>
