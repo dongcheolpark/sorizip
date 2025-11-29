@@ -13,6 +13,9 @@
   if (queryString != null && !queryString.isEmpty()) {
     currentUrl += "?" + queryString;
   }
+  
+  // 로그인/회원가입 페이지인지 확인 (returnUrl 누적 방지)
+  boolean isAuthPage = currentUrl.startsWith("login.jsp") || currentUrl.startsWith("signup.jsp");
 %>
 <header class="nav">
   <a href="index.jsp" class="brand">소리집 <span class="sub">sorizip</span></a>
@@ -22,7 +25,7 @@
       <span class="user-info"><%= userNickname %>님</span>
       <a href="mypage.jsp" class="btn-mypage">마이페이지</a>
       <a href="#" onclick="return confirmLogout();" class="btn-logout">로그아웃</a>
-    <% } else { %>
+    <% } else if (!isAuthPage) { %>
       <a href="login.jsp?returnUrl=<%= java.net.URLEncoder.encode(currentUrl, "UTF-8") %>" class="btn-login">로그인</a>
     <% } %>
     <a href="new.jsp" class="btn-post">+ 매물 등록</a>
