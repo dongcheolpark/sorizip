@@ -42,7 +42,7 @@
   // DB에서 카테고리 목록 가져오기
   List<String> categories = new ArrayList<>();
   try {
-    categories = Db.query("SELECT name FROM category ORDER BY name", (ResultSet rs) -> {
+    categories = Db.query("SELECT id, name FROM category", (ResultSet rs) -> {
       List<String> result = new ArrayList<>();
       while (rs.next()) {
         result.add(rs.getString("name"));
