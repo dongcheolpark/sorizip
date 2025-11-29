@@ -30,6 +30,33 @@ public class SignupServlet extends HttpServlet {
       return;
     }
 
+    // 아이디 길이 검증 (4자리 이상)
+    if (uId.length() < 4) {
+      req.setAttribute("error", "아이디는 4자리 이상이어야 합니다.");
+      req.getRequestDispatcher("signup.jsp").forward(req, resp);
+      return;
+    }
+
+    // 비밀번호 검증 (7자리 이상, 영어+숫자 포함)
+    if (password.length() < 7) {
+      req.setAttribute("error", "비밀번호는 7자리 이상이어야 합니다.");
+      req.getRequestDispatcher("signup.jsp").forward(req, resp);
+      return;
+    }
+
+    boolean hasLetter = false;
+    boolean hasDigit = false;
+    for (char c : password.toCharArray()) {
+      if (Character.isLetter(c)) hasLetter = true;
+      if (Character.isDigit(c)) hasDigit = true;
+    }
+
+    if (!hasLetter || !hasDigit) {
+      req.setAttribute("error", "비밀번호는 영어와 숫자를 모두 포함해야 합니다.");
+      req.getRequestDispatcher("signup.jsp").forward(req, resp);
+      return;
+    }
+
     try {
       // 아이디 중복 확인
       String existingUId = Db.query(

@@ -203,7 +203,17 @@
 
         <div class="form-group">
           <label for="password">새 비밀번호 (변경 시 입력)</label>
-          <input type="password" id="password" name="password" class="form-input" placeholder="변경하지 않으려면 비워두세요" />
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input"
+            placeholder="변경하지 않으려면 비워두세요 (7자리 이상, 영어+숫자)"
+            minlength="7"
+            pattern="^(?=.*[A-Za-z])(?=.*\d).{7,}$"
+            title="비밀번호는 7자리 이상이며, 영어와 숫자를 모두 포함해야 합니다."
+          />
+          <small style="color:#666; font-size:12px;">변경 시: 7자리 이상, 영어와 숫자를 모두 포함해야 합니다.</small>
         </div>
 
         <button type="submit" class="btn primary full-width">정보 수정 저장</button>

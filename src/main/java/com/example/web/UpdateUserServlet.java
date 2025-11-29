@@ -63,6 +63,26 @@ public class UpdateUserServlet extends HttpServlet {
 
       // 비밀번호 변경 여부에 따라 쿼리 분기
       if (password != null && !password.trim().isEmpty()) {
+        // 비밀번호 검증 (7자리 이상, 영어+숫자 포함)
+        if (password.length() < 7) {
+          req.setAttribute("updateError", "비밀번호는 7자리 이상이어야 합니다.");
+          req.getRequestDispatcher("mypage.jsp").forward(req, resp);
+          return;
+        }
+
+        boolean hasLetter = false;
+        boolean hasDigit = false;
+        for (char c : password.toCharArray()) {
+          if (Character.isLetter(c)) hasLetter = true;
+          if (Character.isDigit(c)) hasDigit = true;
+        }
+
+        if (!hasLetter || !hasDigit) {
+          req.setAttribute("updateError", "비밀번호는 영어와 숫자를 모두 포함해야 합니다.");
+          req.getRequestDispatcher("mypage.jsp").forward(req, resp);
+          return;
+        }
+
         String sql = "UPDATE user SET name = ?, nickname = ?, email = ?, password = ? WHERE id = ?";
         Db.execute(sql, name, nickname, email, password, userId);
       } else {

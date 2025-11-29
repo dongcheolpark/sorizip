@@ -29,9 +29,11 @@
         id="userUId"
         name="userUId"
         class="auth-input"
-        placeholder="로그인에 사용할 아이디"
+        placeholder="로그인에 사용할 아이디 (4자리 이상)"
+        minlength="4"
         required
       />
+      <small style="color:#666; font-size:12px;">4자리 이상 입력해주세요.</small>
     </div>
 
     <div class="auth-field">
@@ -41,9 +43,13 @@
         id="userPassword"
         name="userPassword"
         class="auth-input"
-        placeholder="비밀번호를 입력하세요"
+        placeholder="비밀번호를 입력하세요 (7자리 이상, 영어+숫자)"
+        minlength="7"
+        pattern="^(?=.*[A-Za-z])(?=.*\d).{7,}$"
+        title="비밀번호는 7자리 이상이며, 영어와 숫자를 모두 포함해야 합니다."
         required
       />
+      <small style="color:#666; font-size:12px;">7자리 이상, 영어와 숫자를 모두 포함해야 합니다.</small>
     </div>
 
     <div class="auth-field">
@@ -54,7 +60,7 @@
           name="userEmail"
           class="auth-input"
           placeholder="이메일을 입력해주세요"
-          required 
+          required
         />
     </div>
 
