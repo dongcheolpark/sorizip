@@ -22,23 +22,35 @@ public class LoginServlet extends HttpServlet {
     }
 
     try {
-      String sql = "SELECT id, password FROM user WHERE uId = ?";
+      String sql = "SELECT id, password, nickname FROM user WHERE uId = ?";
 
-      Integer foundId = Db.query(sql, rs -> {
+      // 로그인 성공 시 사용자 정보를 담을 클래스
+      class LoginUser {
+        final int id;
+        final String nickname;
+        LoginUser(int id, String nickname) {
+          this.id = id;
+          this.nickname = nickname;
+        }
+      }
+
+      LoginUser loginUser = Db.query(sql, rs -> {
         if (rs.next()) {
           String dbPass = rs.getString("password");
           int id = rs.getInt("id");
+          String nickname = rs.getString("nickname");
           if (dbPass != null && dbPass.equals(password)) {
-            return id;
+            return new LoginUser(id, nickname);
           }
         }
-        return -1;
+        return null;
       }, userIdInput);
 
-      if (foundId != null && foundId > 0) {
+      if (loginUser != null) {
         HttpSession session = req.getSession(true);
-        session.setAttribute("userId", foundId); // 내부 ID (INT)
+        session.setAttribute("userId", loginUser.id); // 내부 ID (INT)
         session.setAttribute("userUId", userIdInput); // 로그인 ID (VARCHAR)
+        session.setAttribute("userNickname", loginUser.nickname); // 닉네임
 
         // 이전 페이지로 리다이렉트 (없으면 index.jsp)
         String returnUrl = (String) session.getAttribute("returnUrl");

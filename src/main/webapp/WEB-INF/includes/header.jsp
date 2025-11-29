@@ -3,8 +3,8 @@
 <%
   // 로그인 상태 확인
   Integer userId = (Integer) session.getAttribute("userId");
-  String userUId = (String) session.getAttribute("userUId");
-  boolean isLoggedIn = (userId != null && userUId != null);
+  String userNickname = (String) session.getAttribute("userNickname");
+  boolean isLoggedIn = (userId != null);
   
   // 현재 페이지 URL 추출 (returnUrl용)
   String currentPage = request.getRequestURI();
@@ -19,7 +19,7 @@
   
   <div class="nav-right">
     <% if (isLoggedIn) { %>
-      <span class="user-info"><%= userUId %>님</span>
+      <span class="user-info"><%= userNickname %>님</span>
       <a href="mypage.jsp" class="btn-mypage">마이페이지</a>
       <a href="#" onclick="return confirmLogout();" class="btn-logout">로그아웃</a>
     <% } else { %>
