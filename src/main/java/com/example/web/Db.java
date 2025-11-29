@@ -31,17 +31,36 @@ public final class Db {
       config.setDriverClassName(props.getProperty("db.driver"));
 
       // 환경 변수에서 읽기 (없으면 properties 파일에서)
+      // DB_HOST, DB_PORT, DB_NAME으로 URL 구성 또는 완전한 MYSQL_URL 사용
       String jdbcUrl = System.getenv("MYSQL_URL");
       if (jdbcUrl == null || jdbcUrl.isEmpty()) {
-        jdbcUrl = props.getProperty("db.jdbcUrl");
+        String dbHost = System.getenv("DB_HOST");
+        String dbPort = System.getenv("DB_PORT");
+        String dbName = System.getenv("DB_NAME");
+
+        if (dbHost != null && !dbHost.isEmpty() &&
+            dbPort != null && !dbPort.isEmpty() &&
+            dbName != null && !dbName.isEmpty()) {
+          jdbcUrl = String.format(
+            "jdbc:mysql://%s:%s/%s?useSSL=true&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC",
+            dbHost, dbPort, dbName);
+        } else {
+          jdbcUrl = props.getProperty("db.jdbcUrl");
+        }
       }
 
-      String username = System.getenv("MYSQL_USERNAME");
+      String username = System.getenv("DB_USER");
+      if (username == null || username.isEmpty()) {
+        username = System.getenv("MYSQL_USERNAME");
+      }
       if (username == null || username.isEmpty()) {
         username = props.getProperty("db.username");
       }
 
-      String password = System.getenv("MYSQL_PASSWORD");
+      String password = System.getenv("DB_PASSWORD");
+      if (password == null || password.isEmpty()) {
+        password = System.getenv("MYSQL_PASSWORD");
+      }
       if (password == null || password.isEmpty()) {
         password = props.getProperty("db.password");
       }

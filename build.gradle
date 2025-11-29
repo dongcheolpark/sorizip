@@ -38,3 +38,9 @@ task appRun(type: JavaExec) {
     // (선택) 한글 깨짐 방지 등 JVM 옵션이 필요하면 추가
     jvmArgs = ['-Dfile.encoding=UTF-8']
 }
+
+// Docker 빌드를 위한 의존성 복사 태스크
+task copyDependencies(type: Copy) {
+    from configurations.runtimeClasspath
+    into 'build/libs/dependencies'
+}

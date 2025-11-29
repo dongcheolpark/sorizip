@@ -1,0 +1,23 @@
+# MySQL Database Configuration for Production
+# Use Cloud SQL Private IP
+db.driver=com.mysql.cj.jdbc.Driver
+db.jdbcUrl=jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=true&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
+db.username=${DB_USER}
+db.password=${DB_PASSWORD}
+
+# MySQL Connection Info
+MYSQL_PASSWORD=${DB_PASSWORD}
+MYSQL_USERNAME=${DB_USER}
+MYSQL_DATABASE=${DB_NAME}
+mysql_url=jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=true&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
+
+# HikariCP Configuration
+hikari.maximumPoolSize=20
+hikari.connectionTimeoutMs=30000
+hikari.idleTimeout=600000
+hikari.maxLifetime=1800000
+
+# GCP Cloud Storage Configuration
+GCP_PROJECT_ID=${GCP_PROJECT_ID}
+GCS_BUCKET_NAME=${GCS_BUCKET_NAME}
+

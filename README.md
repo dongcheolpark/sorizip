@@ -1,48 +1,127 @@
-# testwebapp
+# 🎵 Sorizip (소리집)
 
-간단한 Apache Tomcat (Jakarta EE 10 Servlet 5.0) 기반 Gradle 웹 애플리케이션 예제.
+중고 악기 거래 플랫폼 - Apache Tomcat (Jakarta EE 10 Servlet 5.0) 기반 웹 애플리케이션
 
-## 요구사항
+## ✨ 주요 기능
 
-- JDK 17 이상
-- Gradle Wrapper (동봉된 `./gradlew` 사용 권장)
-- (선택) Gretty 같은 개발용 실행 플러그인 (기본 미포함)
+- 🎸 중고 악기 게시글 작성/수정/삭제
+- 🔍 악기 검색 기능
+- 👤 사용자 회원가입/로그인
+- 📸 이미지 업로드 (GCP Cloud Storage)
+## 🚀 빠른 시작
+### 프로덕션 배포
+### 로컬 개발 환경 실행
+- GCP Cloud SQL (MySQL)
+```bash
+# 1. 데이터베이스 시작 (Docker)
+docker-compose up -d
 
-## 빌드
+# 2. 애플리케이션 실행
 
+
+# 3. 브라우저에서 접속
+# http://localhost:8081
 ```
+
+### 빌드
+
+```bash
 ./gradlew clean build
-```
-
-`build/libs/testwebapp-1.0.0-SNAPSHOT.war` 생성.
-
-## 실행
-
-배포:
-
 1. 생성된 WAR(`build/libs/testwebapp-1.0.0-SNAPSHOT.war`)을 Tomcat 10+ `webapps` 폴더에 복사
 2. Tomcat 기동 후 브라우저에서 http://localhost:8080/testwebapp/ 또는 /hello 확인
-
+`build/libs/sorizip.war` 생성됩니다.
 ### (선택) Gretty 사용 방법
-
+## 🌐 프로덕션 배포 (GCP)
 `build.gradle` plugins 블록에 아래 추가:
+### 빠른 배포 (3단계)
+
+```bash
+# 1. 환경 변수 설정 (Cloud SQL Private IP 필요)
+./setup-env.sh
+
+# 2. Docker로 로컬 테스트
+./deploy.sh
+
+# 3. GCP VM에 배포 (QUICKSTART.md 참조)
+```
+## 📁 프로젝트 구조
 
 ```
-id 'org.gretty' version '4.0.3'
+sorizip/
+├── src/main/
+│   ├── java/com/example/web/
+│   │   ├── TomcatServer.java      # 임베디드 Tomcat 서버
+│   │   ├── LoginServlet.java      # 로그인
+│   │   ├── SignupServlet.java     # 회원가입
+│   │   ├── PostServlet.java       # 게시글 작성
+│   │   ├── EditPostServlet.java   # 게시글 수정
+│   │   ├── DeletePostServlet.java # 게시글 삭제
+│   │   ├── ImageUploader.java     # GCS 이미지 업로드
+│   │   └── Db.java                # HikariCP DB 연결
+│   ├── resources/
+│   │   ├── db.properties          # 개발 환경 설정
+│   │   ├── db.properties.production # 프로덕션 설정
+│   │   └── schema.sql             # DB 스키마
+│   └── webapp/
+│       ├── index.jsp              # 메인 페이지
+│       ├── login.jsp              # 로그인
+│       ├── signup.jsp             # 회원가입
+│       ├── new.jsp                # 게시글 작성
+│       ├── show.jsp               # 게시글 상세
+│       ├── edit.jsp               # 게시글 수정
+│       ├── search.jsp             # 검색
+│       └── mypage.jsp             # 마이페이지
+├── Dockerfile                     # 프로덕션 Docker 이미지
+├── docker-compose.yml             # 개발 환경 (MySQL)
+├── docker-compose.prod.yml        # 프로덕션 환경
+├── nginx/nginx.conf               # Nginx 리버스 프록시 설정
+├── deploy.sh                      # 배포 스크립트
+├── setup-env.sh                   # 환경 변수 설정 스크립트
+└── build.gradle                   # 빌드 설정
 ```
 
-그 후:
+## 🛠️ 기술 스택
 
-```
-./gradlew appRun
-```
+### Backend
+- Java 17
+- Jakarta Servlet 5.0
+- Apache Tomcat 10.1 (Embedded)
+- Gradle 8.5
 
-브라우저: http://localhost:8080/testwebapp/
+### Database
+- MySQL 8.0
+- HikariCP (Connection Pool)
 
-## Tomcat 10 이상 수동 배포 (요약)
+### Infrastructure
+- Docker & Docker Compose
+- Nginx (Reverse Proxy)
+- GCP Cloud SQL (MySQL)
+- GCP Cloud Storage (Image Storage)
+- GCP Compute Engine (VM)
 
-1. WAR 복사 (`build/libs/testwebapp-1.0.0-SNAPSHOT.war` → `webapps/`)
-2. Tomcat 기동 후 `http://localhost:8080/testwebapp` 접속
+### Frontend
+- JSP (JavaServer Pages)
+- HTML5/CSS3
+- Vanilla JavaScript
+
+## 📚 참고 문서
+
+- [QUICKSTART.md](QUICKSTART.md) - 빠른 배포 가이드 (5분)
+- [DEPLOYMENT.md](DEPLOYMENT.md) - 상세 배포 가이드
+- [IMAGE_UPLOAD_GUIDE.md](IMAGE_UPLOAD_GUIDE.md) - 이미지 업로드 가이드
+- [BUGFIX.md](BUGFIX.md) - 버그 수정 내역
+
+## 📝 License
+
+이 프로젝트는 MIT 라이선스로 배포됩니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+
+## 👥 Contributors
+
+- 학교 웹 프로그래밍 프로젝트
+
+---
+
+Made with ❤️ for music lovers 🎵
 
 ## 구조
 

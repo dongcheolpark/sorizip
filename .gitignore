@@ -34,3 +34,44 @@ bin/main/db.properties
 # Tomcat work directory
 tomcat.*/
 *.8081/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Build directories
+build/
+bin/
+.gradle/
+out/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+tomcat.*/
+
+# Temporary files
+*.tmp
+*.bak
+
+# SSL certificates
+nginx/ssl/*.key
+nginx/ssl/*.crt
+nginx/ssl/*.pem
+
+# GCP credentials
+*-credentials.json
+service-account-key.json
