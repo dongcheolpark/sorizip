@@ -43,6 +43,18 @@ public class SignupServlet extends HttpServlet {
         return;
       }
 
+      // 이메일 중복 확인
+      String existingEmail = Db.query(
+          "SELECT email FROM user WHERE email = ?",
+          rs -> rs.next() ? rs.getString("email") : null,
+          email);
+
+      if (existingEmail != null) {
+        req.setAttribute("error", "이미 사용 중인 이메일입니다.");
+        req.getRequestDispatcher("signup.jsp").forward(req, resp);
+        return;
+      }
+
       // 사용자 등록
       String sql = "INSERT INTO user (uId, password, email, name, nickname) VALUES (?, ?, ?, ?, ?)";
 
