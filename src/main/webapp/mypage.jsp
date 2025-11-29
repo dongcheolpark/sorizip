@@ -39,14 +39,12 @@
     final String title;
     final int price;
     final String createdAt;
-    final String status; // 판매중, 판매완료 등 (현재 스키마에는 없지만 추후 확장 가능성 고려, 일단은 없음)
 
     MyPost(int id, String title, int price, String createdAt) {
       this.id = id;
       this.title = title;
       this.price = price;
       this.createdAt = createdAt;
-      this.status = "판매중"; // 기본값
     }
   }
 
