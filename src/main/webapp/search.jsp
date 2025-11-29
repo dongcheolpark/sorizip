@@ -135,6 +135,7 @@
   <meta charset="UTF-8" />
   <title>검색 결과 – 소리집 sorizip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/index.css" />
   <link rel="stylesheet" href="css/search.css" />
 </head>
 <body>
@@ -142,9 +143,9 @@
 <%@ include file="WEB-INF/includes/header.jsp" %>
 
 <section class="section">
-  <div style="display: flex; align-items: center; margin-bottom: 18px;">
-    <h2 style="margin: 0;">검색 결과</h2>
-    <p class="muted" style="margin: 10px 0 4px 10px;">
+  <div class="search-header">
+    <h2 class="search-title">검색 결과</h2>
+    <p class="muted search-description">
       <% if (!keyword.isEmpty()) { %>
         "<strong><%= keyword %></strong>"에 대한 검색 결과
       <% } else { %>
@@ -187,12 +188,12 @@
   </div>
 </div>
 
-  <hr style="margin:16px 0; border:none; border-top:1px solid #eee;" />
+  <hr class="search-divider" />
 
   <!-- 결과 카드 (DB에서 동적 생성) -->
   <div class="grid-3" id="resultGrid">
     <% if (posts.isEmpty()) { %>
-      <p class="muted" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+      <p class="muted no-result">
         조건에 맞는 매물이 없습니다. 검색어와 카테고리를 바꿔보세요.
       </p>
     <% } else { %>

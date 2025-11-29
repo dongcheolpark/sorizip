@@ -140,8 +140,8 @@
   </div>
   <div class="grid-3">
     <% if (recentPosts.isEmpty()) { %>
-      <p class="muted" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
-        등록된 매물이 없습니다.
+      <p class="muted empty-message">
+        등록된 상품이 없습니다.
       </p>
     <% } else { %>
       <% for (RecentPost post : recentPosts) {

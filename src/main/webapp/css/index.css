@@ -292,3 +292,10 @@ body {
   color: #888;
   margin: 0;
 }
+
+/* 빈 상태 메시지 */
+.empty-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+}

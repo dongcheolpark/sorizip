@@ -26,14 +26,14 @@
     <% 
        String signup = request.getParameter("signup");
        if ("success".equals(signup)) { %>
-    <div style="color:#2e7d32; margin-bottom:12px; font-weight:600; padding:8px; background:#e8f5e9; border-radius:6px;">
+    <div class="alert-success">
       회원가입이 완료되었습니다! 로그인해주세요.
     </div>
     <% } 
     
        String error = (String) request.getAttribute("error");
        if (error != null) { %>
-    <div style="color:#b00020; margin-bottom:12px; font-weight:600"><%= error %></div>
+    <div class="alert-error"><%= error %></div>
     <% } %>
 
     <div class="auth-field">

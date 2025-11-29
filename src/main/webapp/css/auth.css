@@ -76,3 +76,19 @@
   color: #999;
   text-align: center;
 }
+
+/* 알림 메시지 */
+.alert-success {
+  color: #2e7d32;
+  margin-bottom: 12px;
+  font-weight: 600;
+  padding: 8px;
+  background: #e8f5e9;
+  border-radius: 6px;
+}
+
+.alert-error {
+  color: #b00020;
+  margin-bottom: 12px;
+  font-weight: 600;
+}

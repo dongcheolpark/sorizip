@@ -88,7 +88,7 @@
   <meta charset="UTF-8" />
   <title>매물 등록 – 소리집 sorizip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="css/search.css" />
+  <link rel="stylesheet" href="css/index.css" />
   <link rel="stylesheet" href="css/form.css" />
 </head>
 <body>
