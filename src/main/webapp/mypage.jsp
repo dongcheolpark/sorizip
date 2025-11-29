@@ -162,7 +162,18 @@
       <% 
         String updateError = (String) request.getAttribute("updateError");
         String updateSuccess = request.getParameter("update");
-        if (updateError != null) { 
+
+        // 에러 발생 시 입력값 유지
+        String prevName = request.getParameter("name");
+        String prevNickname = request.getParameter("nickname");
+        String prevEmail = request.getParameter("email");
+
+        // 에러가 없으면 기존 정보 사용
+        if (prevName == null) prevName = userInfo.name;
+        if (prevNickname == null) prevNickname = userInfo.nickname;
+        if (prevEmail == null) prevEmail = userInfo.email;
+
+        if (updateError != null) {
       %>
         <div class="alert error"><%= updateError %></div>
       <% } else if ("success".equals(updateSuccess)) { %>
@@ -177,17 +188,17 @@
         
         <div class="form-group">
           <label for="name">이름</label>
-          <input type="text" id="name" name="name" value="<%= userInfo.name %>" class="form-input" required />
+          <input type="text" id="name" name="name" value="<%= prevName %>" class="form-input" required />
         </div>
 
         <div class="form-group">
           <label for="nickname">닉네임</label>
-          <input type="text" id="nickname" name="nickname" value="<%= userInfo.nickname %>" class="form-input" required />
+          <input type="text" id="nickname" name="nickname" value="<%= prevNickname %>" class="form-input" required />
         </div>
 
         <div class="form-group">
           <label for="email">이메일</label>
-          <input type="email" id="email" name="email" value="<%= userInfo.email %>" class="form-input" required />
+          <input type="email" id="email" name="email" value="<%= prevEmail %>" class="form-input" required />
         </div>
 
         <div class="form-group">

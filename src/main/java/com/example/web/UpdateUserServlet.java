@@ -37,6 +37,30 @@ public class UpdateUserServlet extends HttpServlet {
     }
 
     try {
+      // 닉네임 중복 확인 (본인 제외)
+      String existingNickname = Db.query(
+          "SELECT nickname FROM user WHERE nickname = ? AND id != ?",
+          rs -> rs.next() ? rs.getString("nickname") : null,
+          nickname, userId);
+
+      if (existingNickname != null) {
+        req.setAttribute("updateError", "이미 사용 중인 닉네임입니다.");
+        req.getRequestDispatcher("mypage.jsp").forward(req, resp);
+        return;
+      }
+
+      // 이메일 중복 확인 (본인 제외)
+      String existingEmail = Db.query(
+          "SELECT email FROM user WHERE email = ? AND id != ?",
+          rs -> rs.next() ? rs.getString("email") : null,
+          email, userId);
+
+      if (existingEmail != null) {
+        req.setAttribute("updateError", "이미 사용 중인 이메일입니다.");
+        req.getRequestDispatcher("mypage.jsp").forward(req, resp);
+        return;
+      }
+
       // 비밀번호 변경 여부에 따라 쿼리 분기
       if (password != null && !password.trim().isEmpty()) {
         String sql = "UPDATE user SET name = ?, nickname = ?, email = ?, password = ? WHERE id = ?";
@@ -44,6 +68,12 @@ public class UpdateUserServlet extends HttpServlet {
       } else {
         String sql = "UPDATE user SET name = ?, nickname = ?, email = ? WHERE id = ?";
         Db.execute(sql, name, nickname, email, userId);
+      }
+
+      // 닉네임이 변경되었으면 세션도 업데이트
+      HttpSession updateSession = req.getSession(false);
+      if (updateSession != null) {
+        updateSession.setAttribute("userNickname", nickname);
       }
 
       // 성공 시 마이페이지로 리다이렉트 (성공 메시지 파라미터 포함)
