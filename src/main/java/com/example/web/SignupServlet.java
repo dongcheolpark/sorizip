@@ -26,6 +26,7 @@ public class SignupServlet extends HttpServlet {
         name == null || name.trim().isEmpty() ||
         nickname == null || nickname.trim().isEmpty()) {
       req.setAttribute("error", "모두 입력해야 합니다.");
+      setFormValues(req, uId, email, name, nickname);
       req.getRequestDispatcher("signup.jsp").forward(req, resp);
       return;
     }
@@ -33,6 +34,7 @@ public class SignupServlet extends HttpServlet {
     // 아이디 길이 검증 (4자리 이상)
     if (uId.length() < 4) {
       req.setAttribute("error", "아이디는 4자리 이상이어야 합니다.");
+      setFormValues(req, uId, email, name, nickname);
       req.getRequestDispatcher("signup.jsp").forward(req, resp);
       return;
     }
@@ -40,6 +42,7 @@ public class SignupServlet extends HttpServlet {
     // 비밀번호 검증 (7자리 이상, 영어+숫자 포함)
     if (password.length() < 7) {
       req.setAttribute("error", "비밀번호는 7자리 이상이어야 합니다.");
+      setFormValues(req, uId, email, name, nickname);
       req.getRequestDispatcher("signup.jsp").forward(req, resp);
       return;
     }
@@ -53,6 +56,7 @@ public class SignupServlet extends HttpServlet {
 
     if (!hasLetter || !hasDigit) {
       req.setAttribute("error", "비밀번호는 영어와 숫자를 모두 포함해야 합니다.");
+      setFormValues(req, uId, email, name, nickname);
       req.getRequestDispatcher("signup.jsp").forward(req, resp);
       return;
     }
@@ -66,6 +70,7 @@ public class SignupServlet extends HttpServlet {
 
       if (existingUId != null) {
         req.setAttribute("error", "이미 사용 중인 아이디입니다.");
+        setFormValues(req, uId, email, name, nickname);
         req.getRequestDispatcher("signup.jsp").forward(req, resp);
         return;
       }
@@ -78,13 +83,13 @@ public class SignupServlet extends HttpServlet {
 
       if (existingEmail != null) {
         req.setAttribute("error", "이미 사용 중인 이메일입니다.");
+        setFormValues(req, uId, email, name, nickname);
         req.getRequestDispatcher("signup.jsp").forward(req, resp);
         return;
       }
 
       // 사용자 등록
       String sql = "INSERT INTO user (uId, password, email, name, nickname) VALUES (?, ?, ?, ?, ?)";
-
       Db.execute(sql, uId, password, email, name, nickname);
 
       // 회원가입 성공 - 로그인 페이지로 리다이렉트
@@ -92,7 +97,16 @@ public class SignupServlet extends HttpServlet {
 
     } catch (SQLException e) {
       req.setAttribute("error", "회원가입 중 오류가 발생했습니다: " + e.getMessage());
+      setFormValues(req, uId, email, name, nickname);
       req.getRequestDispatcher("signup.jsp").forward(req, resp);
     }
+  }
+
+  // 폼 입력값 유지를 위한 헬퍼 메서드 (비밀번호는 보안상 제외)
+  private void setFormValues(HttpServletRequest req, String uId, String email, String name, String nickname) {
+    req.setAttribute("userUId", uId != null ? uId : "");
+    req.setAttribute("userEmail", email != null ? email : "");
+    req.setAttribute("userName", name != null ? name : "");
+    req.setAttribute("userNickname", nickname != null ? nickname : "");
   }
 }

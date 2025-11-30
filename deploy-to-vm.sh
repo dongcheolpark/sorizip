@@ -16,7 +16,7 @@ echo ""
 ZONE="asia-northeast3-a"
 VM_NAME="sorizip-vm"
 
-# 1단계: 프로젝트 파일 압축
+# 1단계: 프로젝트 파일 압축 (.env 파일 제외)
 echo -e "${YELLOW}[1/3]${NC} 프로젝트 압축 중..."
 tar -czf sorizip.tar.gz \
   --exclude='build' \
@@ -25,8 +25,9 @@ tar -czf sorizip.tar.gz \
   --exclude='tomcat.*' \
   --exclude='.git' \
   --exclude='*.tar.gz' \
+  --exclude='.env' \
   . 2>/dev/null
-echo -e "${GREEN}✓ 압축 완료${NC}"
+echo -e "${GREEN}✓ 압축 완료 (.env 파일 제외)${NC}"
 
 # 2단계: VM에 파일 전송
 echo ""
@@ -39,12 +40,18 @@ echo ""
 echo -e "${YELLOW}[3/3]${NC} 배포 실행 중..."
 echo ""
 
-gcloud compute ssh $VM_NAME --zone=$ZONE --command='
 cd ~ &&
+echo "💾 .env 파일 백업 중..." &&
+cp sorizip/.env sorizip_env_backup 2>/dev/null || echo "  (기존 .env 없음)" &&
 rm -rf sorizip_old &&
-mv sorizip sorizip_old 2>/dev/null || true &&
+rm -rf sorizip_old &&
 mkdir -p sorizip &&
 tar -xzf sorizip.tar.gz -C sorizip &&
+echo "✓ 압축 해제 완료" &&
+echo "📝 .env 파일 복원 중..." &&
+cp sorizip_env_backup sorizip/.env 2>/dev/null || echo "  (새 배포, .env 설정 필요)" &&
+cd sorizip &&
+echo "" &&
 cd sorizip &&
 echo "🐳 Docker 이미지 빌드 중..." &&
 sudo docker-compose -f docker-compose.prod.yml build --no-cache 2>&1 | tail -20 &&

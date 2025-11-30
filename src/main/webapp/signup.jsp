@@ -17,10 +17,23 @@
     <h1 class="auth-title">회원가입</h1>
     <p class="auth-sub">소리집 계정을 만들고 중고 악기를 편하게 거래해보세요.</p>
 
-    <% String error = (String) request.getAttribute("error");
+    <%
+       String error = (String) request.getAttribute("error");
        if (error != null) { %>
     <div style="color:#b00020; margin-bottom:12px; font-weight:600; padding:8px; background:#ffebee; border-radius:6px;"><%= error %></div>
-    <% } %>
+    <% }
+
+       // 에러 발생 시 입력값 유지
+       String previousUId = (String) request.getAttribute("userUId");
+       String previousEmail = (String) request.getAttribute("userEmail");
+       String previousName = (String) request.getAttribute("userName");
+       String previousNickname = (String) request.getAttribute("userNickname");
+
+       if (previousUId == null) previousUId = "";
+       if (previousEmail == null) previousEmail = "";
+       if (previousName == null) previousName = "";
+       if (previousNickname == null) previousNickname = "";
+    %>
 
     <div class="auth-field">
       <label class="auth-label" for="userUId">아이디</label>
@@ -30,6 +43,7 @@
         name="userUId"
         class="auth-input"
         placeholder="로그인에 사용할 아이디 (4자리 이상)"
+        value="<%= previousUId %>"
         minlength="4"
         required
       />
@@ -60,6 +74,7 @@
           name="userEmail"
           class="auth-input"
           placeholder="이메일을 입력해주세요"
+          value="<%= previousEmail %>"
           required
         />
     </div>
@@ -72,6 +87,7 @@
         name="userName"
         class="auth-input"
         placeholder="실명을 입력해주세요"
+        value="<%= previousName %>"
         required
       />
     </div>
@@ -84,6 +100,7 @@
             name="userNickname"
             class="auth-input"
             placeholder="사용할 별명을 입력해주세요"
+            value="<%= previousNickname %>"
             required
         />
     </div>
